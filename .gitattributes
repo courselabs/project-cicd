@@ -1,0 +1,10 @@
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+# Force Windows batch scripts to always use CRLF line endings
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{bat,[bB][aA][tT]} text eol=crlf
+
+# Force *nix bash scripts to always use LF line endings
+*.sh text eol=lf
