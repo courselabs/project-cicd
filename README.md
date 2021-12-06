@@ -80,17 +80,16 @@ Copy from the sample solution to the project directory:
 
 ```
 mv project/docker project/docker.bak
+
 cp -r solution/part-1/docker project/
 ```
 
 Then build the images and run containers - make sure you use the project directory as the context so Docker can access the src and docker folders:
 
-TODO - use project as context
-
 _Database_
 
 ```
-docker build -t widgetario/db -f docker/db/Dockerfile .
+docker build -t widgetario/db -f project/docker/db/Dockerfile ./project
 
 docker run --rm -it widgetario/db
 
@@ -102,7 +101,7 @@ docker run --rm -it widgetario/db
 _Products API_
 
 ```
-docker build -t widgetario/products-api -f docker/products-api/Dockerfile .
+docker build -t widgetario/products-api -f project/docker/products-api/Dockerfile ./project
 
 docker run --rm -it widgetario/products-api
 
@@ -114,7 +113,7 @@ docker run --rm -it widgetario/products-api
 _Stock API_
 
 ```
-docker build -t widgetario/stock-api -f docker/stock-api/Dockerfile .
+docker build -t widgetario/stock-api -f project/docker/stock-api/Dockerfile ./project
 
 docker run --rm -it widgetario/stock-api
 
@@ -126,7 +125,7 @@ docker run --rm -it widgetario/stock-api
 _Website_
 
 ```
-docker build -t widgetario/web -f docker/web/Dockerfile .
+docker build -t widgetario/web -f project/docker/web/Dockerfile ./project
 
 docker run --rm -it widgetario/web
 
@@ -139,14 +138,14 @@ docker run --rm -it widgetario/web
 
 ## Part 2 - Application Modelling
 
-We've made a good start - all the components are packaged into container images now. Your job is to get it running in Docker Compose so Widgetario can see how it works in a test environment.
+We've made a good start - all the components are packaged into container images now. Your job is to get it running in Docker Compose so Widgetario can see how it works in a test environment. You should be able to run the app with a simple command and browse to the site on your local machine.
 
-It's not much to go on, but it has all the information you need for this stage.
+The Compose definition should also include all the build details, so we can build all the images with a single `docker-compose` command. Remember the Compose syntax lets you inject environment variables into values (like image names) which will be useful when we build with Jenkins.
 
 <details>
   <summary>💡 Hints</summary>
 
-The component names in the diagram are the DNS names the app expects to use. It can take 30 seconds or so for all the components to be ready, so you may have to refresh a few times before you see the website.
+The component names in the architecture diagram are the DNS names the app expects to use. It can take 30 seconds or so for all the components to be ready, so you may have to refresh a few times before you see the website.
 
 </details><br/>
 
@@ -157,17 +156,28 @@ When you're done you should be able to browse to http://localhost:8080 and see t
 <details>
   <summary>🎯 Solution</summary>
 
-If you didn't get part 2 finished, you can check out the sample solution from [project/solution-part-2](./solution-part-2/docker-compose.yml). 
+If you didn't get part 2 finished, you can check out the sample solution from `solution/part-2`:
+
+- [docker-compose.yml](./solution/part-2/compose/docker-compose.yml) - model with variables in the image name
+
+- [build.yml](./solution/part-2/compose/build.yml) - override file with build details
 
 
 Copy from the sample solution to the project directory:
 
 ```
 mv project/compose project/compose.bak
+
 cp -r solution/part-2/compose project/
 ```
 
-Deploy the sample solution and you can continue to part 3:
+Build with the new image tags:
+
+```
+docker-compose -f project/compose/docker-compose.yml -f project/compose/build.yml build
+```
+
+Run the sample solution:
 
 ```
 docker-compose -f project/compose/docker-compose.yml up -d

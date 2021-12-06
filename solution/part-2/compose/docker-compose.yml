@@ -1,22 +1,22 @@
 services:
 
   products-db:
-    image: widgetario/db
+    image: ${REPOSITORY:-widgetario}/products-db:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
     networks:
       - app-net
 
   products-api:
-    image: widgetario/products-api
+    image: ${REPOSITORY:-widgetario}/products-api:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
     networks:
       - app-net
 
   stock-api:
-    image: widgetario/stock-api
+    image: ${REPOSITORY:-widgetario}/stock-api:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
     networks:
       - app-net
   
   web:
-    image: widgetario/web
+    image: ${REPOSITORY:-widgetario}/web:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
     ports:
       - "8080:80"
     networks:
