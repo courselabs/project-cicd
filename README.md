@@ -233,3 +233,10 @@ git commit -m 'Part 3 solution'
 
 git push project main
 ```
+
+Create project in Jenkins
+
+- Git URL = `http://gogs:3000/courselabs/labs.git`
+- branch specifier = `refs/heads/main`
+- Jenkinsfile path = `project/jenkins/Jenkinsfile`
+- Build Now

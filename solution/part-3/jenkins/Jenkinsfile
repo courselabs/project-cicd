@@ -1,4 +1,4 @@
-# TODOpipeline {
+pipeline {
     agent any
     environment {
       REPOSITORY="widgetario"
@@ -26,7 +26,7 @@
           steps {
               echo "Running local containers"
               sh '''
-                docker-compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml up -d
+                docker-compose -p smoke -f pr/compose/docker-compose.yml -f project/compose/test.yml up -d
 
                 products_address=$(docker port smoke_products-api_1 80)
                 stock_address=$(docker port smoke_stock-api_1 8080)
