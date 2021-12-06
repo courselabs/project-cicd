@@ -357,6 +357,11 @@ kubectl port-forward deploy/web 8089:80
 - use credentials file in build: https://www.jenkins.io/doc/pipeline/steps/credentials-binding/
 - kubectl is installed, use kubectl options to find out how to load a config file
 
+hints.
+
+rollout restart - spec not changed
+clumsy - helm or kustomize to deploy explicit version
+
 soln.
 
 credentials - secret file, upload AKS kubeconfig
@@ -390,4 +395,14 @@ mv project/docker project/docker.bak
 cp -r solution/part-6/docker project/
 ```
 
+## Part 7 - DevSecOps (TODO)
 
+- integrate tools - sonar & trivy
+- optimize images
+- deploy only on success
+
+## Part 8 - Day 2 Ops (TODO)
+
+- deploy monitoring & logging
+- pf to access dashboards/search
+- sidecar for web 
