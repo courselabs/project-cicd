@@ -240,3 +240,34 @@ Create project in Jenkins
 - branch specifier = `refs/heads/main`
 - Jenkinsfile path = `project/jenkins/Jenkinsfile`
 - Build Now
+
+- hints: sleep for products; try/catch to retry compose io; split ports into new compose file; port command for temp
+
+# Part 4 - Publish
+
+- publish to docker hub
+- publish specific build version
+- and tag with release version
+- include build version (release+build number) & git hash in all images as labels
+
+soln. 
+
+- add docker-hub creds to Jenkins
+
+```
+mv project/compose project/compose.bak
+mv project/docker project/docker.bak
+mv project/jenkins project/jenkins.bak
+
+cp -r solution/part-4/compose project/
+cp -r solution/part-4/docker project/
+cp -r solution/part-4/jenkins project/
+```
+
+```
+git add --all
+
+git commit -m 'Part 4 solution'
+
+git push project main
+```
