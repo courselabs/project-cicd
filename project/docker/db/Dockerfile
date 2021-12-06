@@ -1,5 +1,8 @@
-FROM postgres:11.6-alpine
+# TODO
 
-COPY src/db/init-products-db.sh /docker-entrypoint-initdb.d/
+# We use Postgres for the database, version 11.6 - it can use a minimal OS.
 
-ENV POSTGRES_PASSWORD=widgetario
+# There's an init script which populates the reference data that we need to include:
+#  - src/db/init-products-db.sh
+
+# Your base image should make it easy to run that script as part of the container startup.

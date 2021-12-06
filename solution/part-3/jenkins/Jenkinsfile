@@ -21,28 +21,59 @@ pipeline {
         '''
       }
     }
-    stage('Smoke Test') {
+    stage('Smoke Test Deploy') {
       steps {
-        echo "Running local containers"
+        script {
+          try{
+            echo "Running local containers"
+            sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml up -d'
+          }
+          catch(x){
+            echo "Repeating in case of i/o timeout error"
+            sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml up -d'
+          }
+        }    
+      } 
+    }
+    stage('Smoke Test Verify') {
+      steps {
+        echo "Testing HTTP services"
         sh '''
-          docker compose -p smoke -f pr/compose/docker-compose.yml -f project/compose/test.yml up -d
-
-          products_address=$(docker port smoke_products-api_1 80)
-          stock_address=$(docker port smoke_stock-api_1 8080)
-          web_address=$(docker port smoke_web_1 80)
-
-          curl --fail "${stock_address/0.0.0.0/localhost}/healthz"
-          curl --fail "${web_address/0.0.0.0/localhost}/up"
-          curl --fail "${products_address/0.0.0.0/localhost}/healthz"
+          stock_address=$(docker port smoke-stock-api-1 8080)
+          wget -O- -q "${stock_address/0.0.0.0/host.docker.internal}/healthz"
         '''
+        sh '''
+          web_address=$(docker port smoke-web-1 80)
+          wget -O- -q "${web_address/0.0.0.0/host.docker.internal}/up"
+        '''
+        script {
+          try{
+            sh '''
+              products_address=$(docker port smoke-products-api-1 80)
+              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+            '''
+          }
+          catch(x){
+            sleep(20)
+            sh '''
+              products_address=$(docker port smoke-products-api-1 80)
+              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+            '''
+          }
+        }
       }
     }
   }
   post{
-    always {
-      sh '''
-        docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml down || true
-      '''
+    always {      
+      script {
+        try{
+          sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml down' 
+        }
+        catch(x){
+          echo "Ignoring compose down failure"
+        }
+      }       
     }
   }
 }
