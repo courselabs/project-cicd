@@ -275,3 +275,73 @@ git push project main
 Check in Docker Hub, e.g.
 
 ![](/img/solution-part-4-docker-hub.png)
+
+docker image inspect widgetario/stock-api:21.12-21
+
+Check labels
+
+# Part 5 - Model for Production
+
+- svc & deployment for each component
+- for web have nodeport 30008 & loadbalancer 80 services
+- run apis & web w/ 2 replicas each
+- use release version - imagepullpolicy=always
+- include ops labels for app management 
+
+deploy to local environment
+
+soln.
+
+
+```
+mv project/kubernetes project/kubernetes.bak
+
+cp -r solution/part-5/kubernetes project/
+```
+
+```
+k apply -f project/kubernetes/widgetario
+```
+
+check:
+
+```
+k get po -l app=widgetario
+
+k get svc -l app=widgetario
+```
+
+localhost:30008
+
+debug:
+
+```
+k logs -l component=products-api
+
+kubectl port-forward deploy/products-api 8089:80
+
+# http://localhost:8089/products
+
+# ctrl-c
+```
+
+```
+k logs -l component=stock-api
+
+kubectl port-forward deploy/stock-api 8089:8080
+
+# http://localhost:8089/stock/1
+
+# ctrl-c
+```
+
+```
+k exec deploy/web -- cat /logs/app.log
+
+kubectl port-forward deploy/web 8089:80
+
+# http://localhost:8089
+
+# ctrl-c
+```
+
