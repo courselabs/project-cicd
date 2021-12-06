@@ -1,0 +1,13 @@
+services:
+
+  products-api:
+    ports:
+      - "80"
+
+  stock-api:
+    ports:
+      - "8080"
+
+  web:
+    ports:
+      - "80"

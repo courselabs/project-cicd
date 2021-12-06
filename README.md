@@ -187,4 +187,49 @@ Check the app at http://localhost:8080
 
 </details><br/>
 
-## Part 3 - 
+## Part 3 - Continuous Integration
+
+- build with Jenkins ("docker compose")
+
+- run with compose in test stage
+
+- curl test(s)
+- web /up
+- stock /healthz
+- products /healthz
+
+Run infra:
+
+```
+docker-compose -f infra\build/docker-compose.yml up -d
+```
+
+
+jenkins: http://localhost:8081
+gogs: http://localhost:3000
+
+username: courselabs
+password: student
+
+```
+git remote add project http://localhost:3000/courselabs/labs.git
+```
+
+
+Copy from the sample solution to the project directory:
+
+```
+mv project/compose project/compose.bak
+mv project/jenkins project/jenkins.bak
+
+cp -r solution/part-3/compose project/
+cp -r solution/part-3/jenkins project/
+```
+
+```
+git add --all
+
+git commit -m 'Part 3 solution'
+
+git push project main
+```

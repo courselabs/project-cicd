@@ -18,6 +18,11 @@ public class Application {
         return "Nothing to see here, try /products";
     }
 
+    @RequestMapping("/healthz")
+    public String home() {
+        return "Ok";
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
