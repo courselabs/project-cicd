@@ -271,3 +271,7 @@ git commit -m 'Part 4 solution'
 
 git push project main
 ```
+
+Check in Docker Hub, e.g.
+
+![](/img/solution-part-4-docker-hub.png)

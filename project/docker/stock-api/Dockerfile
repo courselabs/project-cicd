@@ -1,28 +1,24 @@
-FROM golang:1.15.14-alpine3.14 AS builder
-ENV CGO_ENABLED=0
+# TODO
 
-WORKDIR /go/stock-api
-COPY src/stock-api/. .
+# We use Golang version 1.15.14 for the build, with the 
+# environment variable CGO_ENABLED set to 0.
 
-RUN chmod +x restore.sh && ./restore.sh
-RUN chmod +x build.sh  && ./build.sh
+# Run the build scripts:
+#  - src/stock-api/restore.sh
+#  - src/stock-api/build.sh
+#  you'll need to make the files executable first with chmod +x <filename>.
 
-# app
-FROM alpine:3.14
+# Build output is a single executable file:
+#  /server
 
-ENV POSTGRES_CONNECTION_STRING="host=products-db port=5432 user=postgres password=widgetario dbname=postgres sslmode=disable" \
-    CACHE_EXPIRY_SECONDS="45" \
-    GOLANG_VERSION="1.15.14" \
-    APP_VERSION="0.4.0"
+# The app should run on a minimal OS.
 
-EXPOSE 8080
-CMD ["/app/server"]
+# We need to set four environment variables - 
+# GOLANG_VERSION and APP_VERSION - expected by ops
+# CACHE_EXPIRY_SECONDS set to 45
+# POSTGRES_CONNECTION_STRING set to "host=products-db port=5432 user=postgres password=widgetario dbname=postgres sslmode=disable"
 
-WORKDIR /cache
-WORKDIR /app
-COPY --from=builder /server .
+# The startup command needs to run the executable from the build:
+#  /server
 
-ARG BUILD_VERSION=local
-ARG GIT_COMMIT=local
-LABEL BUILD_VERSION=${BUILD_VERSION}
-LABEL commit_sha=${GIT_COMMIT}
+# We also need to create an empty directory at /cache.
