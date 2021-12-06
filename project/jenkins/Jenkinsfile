@@ -63,27 +63,27 @@ pipeline {
         }
       }
     }
-  }
-  stage('Push build version') {
-    steps {
-      echo "Pushing images for release: ${RELEASE}, build: ${BUILD_NUMBER}"       
-      withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
-        sh '''
-          docker login --username ${REGISTRY_USER} --password ${REGISTRY_PASSWORD}
-          docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml push
-        '''
+    stage('Push build version') {
+      steps {
+        echo "Pushing images for release: ${RELEASE}, build: ${BUILD_NUMBER}"       
+        withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+          sh '''
+            docker login --username ${REGISTRY_USER} --password ${REGISTRY_PASSWORD}
+            docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml push
+          '''
+        }
       }
     }
-  }
-  stage('Push release version') {
-    steps {
-      echo "Pushing images for release: ${RELEASE}"   
-      sh 'docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml -f project/compose/release.yml build --pull'
-      withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
-        sh '''
-          docker login --username ${REGISTRY_USER} --password ${REGISTRY_PASSWORD}
-          docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml -f project/compose/release.yml push
-        '''
+    stage('Push release version') {
+      steps {
+        echo "Pushing images for release: ${RELEASE}"   
+        sh 'docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml -f project/compose/release.yml build --pull'
+        withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+          sh '''
+            docker login --username ${REGISTRY_USER} --password ${REGISTRY_PASSWORD}
+            docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml -f project/compose/release.yml push
+          '''
+        }
       }
     }
   }
