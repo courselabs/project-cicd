@@ -24,5 +24,5 @@ COPY --from=builder /server .
 
 ARG BUILD_VERSION=local
 ARG GIT_COMMIT=local
-LABEL BUILD_VERSION=${BUILD_VERSION}
+LABEL build_version=${BUILD_VERSION}
 LABEL commit_sha=${GIT_COMMIT}

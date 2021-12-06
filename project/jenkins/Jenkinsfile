@@ -50,14 +50,14 @@ pipeline {
           try{
             sh '''
               products_address=$(docker port smoke-products-api-1 80)
-              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+              wget -O- -q -T 5 "${products_address/0.0.0.0/host.docker.internal}/healthz"
             '''
           }
           catch(x){
             sleep(20)
             sh '''
               products_address=$(docker port smoke-products-api-1 80)
-              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+              wget -O- -q -T 5 "${products_address/0.0.0.0/host.docker.internal}/healthz"
             '''
           }
         }
@@ -92,6 +92,7 @@ pipeline {
         withCredentials([file(credentialsId: 'aks-kubeconfig', variable: 'KUBECONFIG')]) {
           sh '''
             kubectl apply -f project/kubernetes/widgetario --kubeconfig="${KUBECONFIG}"
+            kubectl get svc web-lb --kubeconfig="${KUBECONFIG}"
           '''
         }
       }

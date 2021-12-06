@@ -349,6 +349,7 @@ kubectl port-forward deploy/web 8089:80
 
 - download kubeconfig file
 - deploy to production AKS cluster on every build
+- print lb service details to see IP
 - test deployment
 - update docker image for web to default dark mode
 - build & verify new version is deployed
@@ -376,5 +377,17 @@ git push project main
 ```
 
 build
+
+- check logs and open EXTERNAL-IP
+
+- if you need to debug, use the same kubeconfig file in your local Kubectl
+
+test build with update:
+
+```
+mv project/docker project/docker.bak
+
+cp -r solution/part-6/docker project/
+```
 
 
