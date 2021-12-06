@@ -345,3 +345,32 @@ kubectl port-forward deploy/web 8089:80
 # ctrl-c
 ```
 
+## Part 6 - Continuous Deployment
+
+- download kubeconfig file
+- deploy to production AKS cluster on every build
+- test deployment
+- update docker image for web to default dark mode
+- build & verify new version is deployed
+
+- use credentials file in build: https://www.jenkins.io/doc/pipeline/steps/credentials-binding/
+- kubectl is installed, use kubectl options to find out how to load a config file
+
+soln.
+
+credentials - secret file, upload AKS kubeconfig
+
+```
+mv project/jenkins project/jenkins.bak
+
+cp -r solution/part-6/jenkins project/
+```
+
+
+```
+git add --all
+
+git commit -m 'Part 6 solution'
+
+git push project main
+```

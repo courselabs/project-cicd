@@ -1,19 +1,24 @@
-# TODO
+FROM maven:3.6.3-jdk-11 AS builder
 
-# We use Maven version 3.6.3 for the build, with JDK 11.
+WORKDIR /usr/src/api
+COPY src/products-api/. .
 
-# Run the build scripts:
-#  - src/products-api/restore.sh
-#  - src/products-api/build.sh
-#  you'll need to make the files executable first with chmod +x <filename>.
+RUN chmod +x restore.sh && ./restore.sh
+RUN chmod +x build.sh  && ./build.sh
 
-# Build output is a single JAR file:
-#  /usr/src/api/target/products-api-0.1.0.jar
+# app
+FROM openjdk:11.0.12-jre-slim-buster
 
-# The app should run on OpenJDK 11.0.12, it can use a minimal OS. 
+WORKDIR /app
+COPY --from=builder /usr/src/api/target/products-api-0.1.0.jar .
 
-# We need to set two environment variables - 
-# JRE_VERSION and APP_VERSION. 
+EXPOSE 80
+ENTRYPOINT ["java", "-jar", "/app/products-api-0.1.0.jar"]
 
-# The startup command needs to run the JAR file from the build:
-#  java -jar products-api-0.1.0.jar
+ENV JRE_VERSION="11.0.12" \
+    APP_VERSION="0.4.0"
+
+ARG BUILD_VERSION=local
+ARG GIT_COMMIT=local
+LABEL BUILD_VERSION=${BUILD_VERSION}
+LABEL commit_sha=${GIT_COMMIT}
