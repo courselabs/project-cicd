@@ -19,7 +19,7 @@ public class Application {
     }
 
     @RequestMapping("/healthz")
-    public String home() {
+    public String health() {
         return "Ok";
     }
 

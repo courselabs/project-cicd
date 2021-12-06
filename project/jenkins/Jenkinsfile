@@ -17,7 +17,7 @@ pipeline {
       steps {
         echo "Building images for release: ${RELEASE}"
         sh '''
-          docker-compose -f project/compose/docker-compose.yml -f project/compose/build.yml build --pull
+          docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml build --pull
         '''
       }
     }
@@ -25,7 +25,7 @@ pipeline {
       steps {
         echo "Running local containers"
         sh '''
-          docker-compose -p smoke -f pr/compose/docker-compose.yml -f project/compose/test.yml up -d
+          docker compose -p smoke -f pr/compose/docker-compose.yml -f project/compose/test.yml up -d
 
           products_address=$(docker port smoke_products-api_1 80)
           stock_address=$(docker port smoke_stock-api_1 8080)
@@ -41,7 +41,7 @@ pipeline {
   post{
     always {
       sh '''
-        docker-compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml down
+        docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml down || true
       '''
     }
   }
