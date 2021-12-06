@@ -92,6 +92,7 @@ pipeline {
         withCredentials([file(credentialsId: 'aks-kubeconfig', variable: 'KUBECONFIG')]) {
           sh '''
             kubectl apply -f project/kubernetes/widgetario --kubeconfig="${KUBECONFIG}"
+            kubectl get svc web-lb
           '''
         }
       }

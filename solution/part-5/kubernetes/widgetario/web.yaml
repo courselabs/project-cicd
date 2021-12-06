@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-np
+  name: web-lb
   labels:
     courselabs.co: project-cicd
     app: widgetario
