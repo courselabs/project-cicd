@@ -19,7 +19,7 @@ RUN if [ "$SONAR_TOKEN" != "" ] ; then \
     fi
 
 # app
-FROM widgetario/java:jre-20.12 AS app
+FROM widgetario/java:jre-21.12 AS app
 
 WORKDIR /app
 COPY --from=builder /usr/src/api/target/products-api-0.1.0.jar .

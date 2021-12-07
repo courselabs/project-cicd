@@ -1,4 +1,4 @@
-FROM widgetario/dotnet:sdk:20.12 AS builder
+FROM widgetario/dotnet:sdk-20.12 AS builder
 
 ARG SONAR_PROJECT='widgetario-web'
 ARG SONAR_URL='http://sonarqube:9000'
