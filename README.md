@@ -404,6 +404,13 @@ cp -r solution/part-6/docker project/
 - log into sonarqube at http://localhost:9000, then http://localhost:9000/account/security/ to generate token 
 - add to Jenkins as secret text cred 
 
+- check http://localhost:9000/projects to confirm sonar builds are clean (add quality gate)
+
+hints.
+
+buildkit off
+build needs to use infra network
+sonar in .net needs to start and end in same folder as build command
 
 soln.
 

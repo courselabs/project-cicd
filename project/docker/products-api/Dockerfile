@@ -19,7 +19,7 @@ RUN if [ "$SONAR_TOKEN" != "" ] ; then \
     fi
 
 # app
-FROM openjdk:11.0.12-jre-slim-buster
+FROM openjdk:11.0.12-jre-slim-buster AS app
 
 WORKDIR /app
 COPY --from=builder /usr/src/api/target/products-api-0.1.0.jar .
@@ -29,6 +29,14 @@ ENTRYPOINT ["java", "-jar", "/app/products-api-0.1.0.jar"]
 
 ENV JRE_VERSION="11.0.12" \
     APP_VERSION="0.4.0"
+
+# CVE scanner
+FROM app AS scan
+COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
+RUN trivy client --remote http://trivy:8080 rootfs -s HIGH --exit-code 1 --no-progress
+
+# final image
+FROM app as final
 
 ARG BUILD_VERSION=local
 ARG GIT_COMMIT=local

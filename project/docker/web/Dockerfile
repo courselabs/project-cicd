@@ -20,7 +20,7 @@ RUN chmod +x build.sh  && ./build.sh
 RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
 
 # app image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS app
 
 ENV Widgetario__ProductsApi__Url="http://products-api/products" \
     Widgetario__StockApi__Url="http://stock-api:8080/stock" \
@@ -32,6 +32,14 @@ ENTRYPOINT ["dotnet", "/app/Widgetario.Web.dll"]
 
 WORKDIR /app
 COPY --from=builder /out/ .
+
+# CVE scanner
+FROM app AS scan
+COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
+RUN trivy client --remote http://trivy:8080 rootfs -s HIGH --exit-code 1 --no-progress
+
+# final image
+FROM app as final
 
 ARG BUILD_VERSION=local
 ARG GIT_COMMIT=local
