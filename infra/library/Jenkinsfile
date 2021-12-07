@@ -1,0 +1,21 @@
+pipeline {
+  agent any
+  stages {
+    stage('Audit tools') {                        
+      steps {
+        sh '''
+          docker version
+          docker compose version
+        '''
+      }
+    }
+    stage('Build') {
+      steps {
+        echo "Building image library"
+        sh '''
+          docker compose -f infra/build/docker-compose.yml build --pull
+        '''
+      }
+    }
+  }
+}

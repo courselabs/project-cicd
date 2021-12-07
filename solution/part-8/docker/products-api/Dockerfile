@@ -11,15 +11,15 @@ RUN chmod +x restore.sh && ./restore.sh
 RUN chmod +x build.sh  && ./build.sh
 
 RUN if [ "$SONAR_TOKEN" != "" ] ; then \
-    mvn sonar:sonar \
-    -Dsonar.projectKey=h$SONAR_PROJECT \
-    -Dsonar.host.url=$SONAR_URL \
-    -Dsonar.login=$SONAR_TOKEN \
-    -Dsonar.qualitygate.wait=$SONAR_ENFORCE_GATE ; \
+        mvn sonar:sonar \
+        -Dsonar.projectKey=h$SONAR_PROJECT \
+        -Dsonar.host.url=$SONAR_URL \
+        -Dsonar.login=$SONAR_TOKEN \
+        -Dsonar.qualitygate.wait=$SONAR_ENFORCE_GATE ; \
     fi
 
 # app
-FROM openjdk:11.0.12-jre-slim-buster AS app
+FROM widgetario/java:jre-20.12 AS app
 
 WORKDIR /app
 COPY --from=builder /usr/src/api/target/products-api-0.1.0.jar .

@@ -1,0 +1,27 @@
+version: "3.7"
+
+services: 
+
+  base:
+    image: widgetario/base:jdk-21.12
+    build:
+      context: ./base
+      args:
+        ALPINE_VERSION: '3.15'
+
+  java-jre:
+    image: widgetario/java:jre-21.12
+    depends_on:
+      - base
+    build:
+      context: ./java/jre
+
+  dotnet-sdk:
+    image: widgetario/dotnet:sdk-21.12
+    build:
+      context: ./dotnet/sdk
+
+  dotnet-aspnet:
+    image: widgetario/dotnet:aspnet-21.12
+    build:
+      context: ./dotnet/aspnet

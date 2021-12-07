@@ -395,7 +395,7 @@ mv project/docker project/docker.bak
 cp -r solution/part-6/docker project/
 ```
 
-## Part 7 - DevSecOps
+## Part 7 - DevSecOps, scanning
 
 - integrate tools - sonar & trivy
 - optimize images
@@ -433,6 +433,11 @@ git commit -m 'Part 7 solution'
 git push project main
 ```
 
+> will fail; java has critical vuln with debian base
+
+## Part 8 - DevSecOps, golden images
+
+- integrate tools - sonar & trivy
 
 ## Part 8 - Day 2 Ops (TODO)
 

@@ -8,7 +8,7 @@ RUN chmod +x restore.sh && ./restore.sh
 RUN chmod +x build.sh  && ./build.sh
 
 # app
-FROM alpine:3.14 AS app
+FROM widgetario/base:21.12 AS app
 
 ENV POSTGRES_CONNECTION_STRING="host=products-db port=5432 user=postgres password=widgetario dbname=postgres sslmode=disable" \
     CACHE_EXPIRY_SECONDS="45" \
