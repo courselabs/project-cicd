@@ -1,4 +1,4 @@
-FROM widgetario/dotnet:sdk-20.12 AS builder
+FROM widgetario/dotnet:sdk-21.12 AS builder
 
 ARG SONAR_PROJECT='widgetario-web'
 ARG SONAR_URL='http://sonarqube:9000'
@@ -15,7 +15,7 @@ RUN chmod +x build.sh  && ./build.sh
 RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
 
 # app image
-FROM widgetario/dotnet:aspnet-20.12 AS app
+FROM widgetario/dotnet:aspnet-21.12 AS app
 
 ENV Widgetario__ProductsApi__Url="http://products-api/products" \
     Widgetario__StockApi__Url="http://stock-api:8080/stock" \
