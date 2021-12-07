@@ -18,6 +18,7 @@ services:
         GIT_COMMIT: ${GIT_COMMIT:-local}
         SONAR_TOKEN: ${SONAR_TOKEN}
         SONAR_ENFORCE_GATE: ${SONAR_ENFORCE_GATE:-false}
+        TRIVY_SCAN: ${TRIVY_SCAN:-0}
       network: cicd-infra
 
   stock-api:
@@ -27,6 +28,7 @@ services:
       args:
         BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
         GIT_COMMIT: ${GIT_COMMIT:-local}
+        TRIVY_SCAN: ${TRIVY_SCAN:-0}
       network: cicd-infra
 
   web:
@@ -38,4 +40,5 @@ services:
         GIT_COMMIT: ${GIT_COMMIT:-local}
         SONAR_TOKEN: ${SONAR_TOKEN}
         SONAR_ENFORCE_GATE: ${SONAR_ENFORCE_GATE:-false}
+        TRIVY_SCAN: ${TRIVY_SCAN:-0}
       network: cicd-infra

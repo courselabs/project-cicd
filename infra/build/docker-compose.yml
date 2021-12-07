@@ -25,15 +25,7 @@ services:
     ports:
       - "9000:9000"  
     networks:
-      - cicd-infra  
-
-  trivy:
-    image: aquasec/trivy:0.21.1
-    command: server --listen 0.0.0.0:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  
-    networks:
-      - cicd-infra  
+      - cicd-infra
 
 networks:
   cicd-infra:
