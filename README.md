@@ -38,19 +38,19 @@ You should be able to get all the components to build without any errors.
 
 🥅 Goals
 
-- build a Docker image for each component
+- Build a Docker image for each component
 
-- verify you can run a container from each image
+- Verify you can run a container from each image
 
-- every container should print application logs, but may exit with errors - that's OK
+- Every container should print application logs, but may exit with errors - that's OK
 
-- you don't need to run all the containers and test the whole app at this stage
+- You don't need to run all the containers and test the whole app at this stage
 
 📚 Reference
 
-- we covered the basics in [Building Container Images](https://devsecops.courselabs.co/labs/images/)
+- [Building Container Images](https://devsecops.courselabs.co/labs/images/) covers the basics of the Dockerfile
 
-- and looked at compiling code with containers in [Multi-stage Builds](https://devsecops.courselabs.co/labs/multi-stage/)
+- [Multi-stage Builds](https://devsecops.courselabs.co/labs/multi-stage/) looks at compiling from source code in containers
 
 <details>
   <summary>💡 Hints</summary>
@@ -138,32 +138,51 @@ docker run --rm -it widgetario/web
 
 ## Part 2 - Application Modelling
 
-We've made a good start - all the components are packaged into container images now. Your job is to get it running in Docker Compose so Widgetario can see how it works in a test environment. You should be able to run the app with a simple command and browse to the site on your local machine.
+We've made a good start - all the components are packaged into container images now. Your next job is to get it running in Docker Compose so Widgetario can see how it works in a test environment. You should be able to run the app with a single command and browse to the site on your local machine.
 
-The Compose definition should also include all the build details, so we can build all the images with a single `docker-compose` command. Remember the Compose syntax lets you inject environment variables into values (like image names) which will be useful when we build with Jenkins.
+The Compose definition should also include all the build details, so we can build all the images with a single `docker-compose` command. Remember the Compose syntax lets you inject environment variables into values (like image names) which will be useful when we go on to build with Jenkins.
+
+You should put your Compose file(s) in the `project/compose` folder. When you're done you should be able to browse to http://localhost:8080 and see this:
+
+![](/img/widgetario-solution-1.png)
+
+🥅 Goals
+
+- Model the application in Docker Compose
+
+- Start the whole application with a Compose command and verify the app works
+
+- Include the build details in the Compose model
+
+- Build all the application images with a Compose command
+
+📚 Reference
+
+- [Modelling Apps with Compose](https://cloudnative.courselabs.co/labs/compose-model/) walks you through using Compose for multi-container apps
+
+- [Building Distributed Apps](https://devsecops.courselabs.co/labs/compose-build/) covers the build parts of the Compose spec
 
 <details>
   <summary>💡 Hints</summary>
 
-The component names in the architecture diagram are the DNS names the app expects to use. It can take 30 seconds or so for all the components to be ready, so you may have to refresh a few times before you see the website.
+There's just enough information in architecture diagram to help: the component names are the DNS names the app expects to use, and the ports specify where each component is listening for traffic.
+
+You don't need to apply any configuration settings in the model, the source code has a default set of config which will work if you model the names correctly.
+
+When you start all the containers, it can take 30 seconds or so for all the components to be ready, so you may have to refresh a few times before you see the website.
 
 </details><br/>
-
-When you're done you should be able to browse to http://localhost:8080 and see this:
-
-![](/img/widgetario-solution-1.png)
 
 <details>
   <summary>🎯 Solution</summary>
 
 If you didn't get part 2 finished, you can check out the sample solution from `solution/part-2`:
 
-- [docker-compose.yml](./solution/part-2/compose/docker-compose.yml) - model with variables in the image name
+- [docker-compose.yml](./solution/part-2/compose/docker-compose.yml) - models the application with variables in the image names
 
-- [build.yml](./solution/part-2/compose/build.yml) - override file with build details
+- [build.yml](./solution/part-2/compose/build.yml) - adds the build details in an override file 
 
-
-Copy from the sample solution to the project directory:
+Copy from the sample solution to the project directory - this will use your own Dockerfiles in the `project/docker` directory:
 
 ```
 mv project/compose project/compose.bak
@@ -188,6 +207,58 @@ Check the app at http://localhost:8080
 </details><br/>
 
 ## Part 3 - Continuous Integration
+
+Okay, now we have the packaging files and a one-line build script, we can start building out the pipeline. We'll run Jenkins and our own Git server in local containers, so your machine will be the build engine.
+
+First we want to define a simple Jenkins pipeline which fetches the project repo, builds all the images and runs a test by starting containers. Your Compose model from part 2 is the starting point for that.
+
+Run the build containers from `infra/build/docker-compose.yml`. When they're up you can browse to Jenkins at http://localhost:8081 and to Gogs (the Git server) at http://localhost:3000; the credentials for both are the same:
+
+- username: `courselabs`
+- password: `student`
+
+You should build out your pipeline in the file path `project/jenkins/Jenkinsfile` and then configure a new pipeline project in Jenkins to run it. 
+
+> Note: this Jenkins instance has all the tools you need already installed, but it uses the newer version of Compose so the command is `docker compose` **not** `docker-compose`
+
+There's a repo already set up in the Git server which you can use if you want to; then the Jenkins pipeline SCM details will be:
+
+- Git URL: `http://gogs:3000/courselabs/labs.git`
+- branch specifier: `refs/heads/main`
+
+And you can push your local repo to Gogs using these commands:
+
+```
+git remote add project http://localhost:3000/courselabs/labs.git
+
+git push project main
+```
+
+Remember you'll need to commit your changes and push them again whenever you update local files, so Jenkins can fetch the latest content.
+
+🥅 Goals
+
+- Build Docker images for each component, including the build number in the image tag
+
+- Run the application during the build to verify all the containers start correctly
+
+- Test the containers by making HTTP requests with `wget` - the web app has an `/up` endpoint, the APIs both have `/healthz` endpoints. They should all return 200-OK status codes once the apps are running.
+
+📚 Reference
+
+- []() 
+
+<details>
+  <summary>💡 Hints</summary>
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+</details><br/>
+
+
 
 - build with Jenkins ("docker compose")
 
