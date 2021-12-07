@@ -11,10 +11,10 @@ services:
 
   java-jre:
     image: widgetario/java:jre-21.12
-    depends_on:
-      - base
     build:
       context: ./java/jre
+      args:
+        ALPINE_VERSION: '3.15'
 
   dotnet-sdk:
     image: widgetario/dotnet:sdk-21.12
