@@ -238,56 +238,47 @@ Remember you'll need to commit your changes and push them again whenever you upd
 
 🥅 Goals
 
-- Build Docker images for each component, including the build number in the image tag
+- Create a pipeline to build Docker images for each component, including the build number in the image tag
 
-- Run the application during the build to verify all the containers start correctly
+- Run the application in the pipeline after the build stage to verify the application starts correctly from the new images
 
 - Test the containers by making HTTP requests with `wget` - the web app has an `/up` endpoint, the APIs both have `/healthz` endpoints. They should all return 200-OK status codes once the apps are running.
 
 📚 Reference
 
-- []() 
+- [Automation with Jenkins](https://devsecops.courselabs.co/labs/jenkins/) introduces Jenkins and the Jenkinsfile syntax
+
+- [Building Docker Images with Jenkins](https://devsecops.courselabs.co/labs/pipeline/) walks through using Docker Compose to build applications with Jenkins
 
 <details>
   <summary>💡 Hints</summary>
+
+Take your Jenkinsfile one stage at a time - get the images building, then start the containers running and then add your tests. You're certain to have issues with paths or syntax problems, so it's best to start simple and iterate.
+
+When you deploy the containers during the pipeline, remember they're sharing the same Docker engine where you run other containers. You may get port collisions, so it's good if your test deployment uses different (maybe random?) ports.
+
+The web and API containers will all respond to the `wget` call - but one of the containers takes a while to start up. Jenkins has [try/catch](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-failure) blocks to deal with errors and the [sleep](https://www.jenkins.io/doc/pipeline/steps/workflow-basic-steps/#sleep-sleep) step is useful to give things time to be ready.
 
 </details><br/>
 
 <details>
   <summary>🎯 Solution</summary>
 
-</details><br/>
+If you didn't get part 3 finished, you can check out the sample solution from `solution/part-3`:
 
+- [Jenkinsfile](./solution/part-3/jenkins/Jenkinsfile) - has build, deployment and test sections (called "smoke tests" because they're just a basic test); you'll see there are try/catch blocks to deal with errors and a `post` section to tidy up
 
+- [docker-compose.yml](./solution/part-3/compose/docker-compose.yml) - removes the ports so this becomes a generic definition we can use locally and in the pipeline
 
-- build with Jenkins ("docker compose")
+- [test.yml](./solution/part-3/compose/test.yml) - publishes random ports for use in the test stage - you'll see the Jenkinsfile uses the `docker port` command to find out the specific ports for each run
 
-- run with compose in test stage
-
-- curl test(s)
-- web /up
-- stock /healthz
-- products /healthz
-
-Run infra:
+To use the sample solution, start by running the build containers:
 
 ```
 docker-compose -f infra\build/docker-compose.yml up -d
 ```
 
-
-jenkins: http://localhost:8081
-gogs: http://localhost:3000
-
-username: courselabs
-password: student
-
-```
-git remote add project http://localhost:3000/courselabs/labs.git
-```
-
-
-Copy from the sample solution to the project directory:
+Then copy from the sample solution to the project directory - this will use the existing Dockerfiles in the `project/docker` directory:
 
 ```
 mv project/compose project/compose.bak
@@ -297,6 +288,8 @@ cp -r solution/part-3/compose project/
 cp -r solution/part-3/jenkins project/
 ```
 
+Now add all those changes to your local Git server:
+
 ```
 git add --all
 
@@ -305,25 +298,70 @@ git commit -m 'Part 3 solution'
 git push project main
 ```
 
-Create project in Jenkins
+Log in to Jenkins and create a new pipeline project with these details:
 
 - Git URL = `http://gogs:3000/courselabs/labs.git`
 - branch specifier = `refs/heads/main`
 - Jenkinsfile path = `project/jenkins/Jenkinsfile`
-- Build Now
 
-- hints: sleep for products; try/catch to retry compose io; split ports into new compose file; port command for temp
+Click _Build Now_ and you should see all the images built, the containers started and the tests pass.
 
-# Part 4 - Publish
+</details><br/>
 
-- publish to docker hub
-- publish specific build version
-- and tag with release version
-- include build version (release+build number) & git hash in all images as labels
 
-soln. 
+## Part 4 - Publish
 
-- add docker-hub creds to Jenkins
+Now we have a CI pipeline, we can extend it to get ready for Continuous Deployment. We'll be deploying to a remote environment, so the next step is to publish Docker images from the build pipeline. 
+
+You can use any image registry, but Docker Hub is the easiest ([create a free account]() if you don't have one). You'll need to store your credentials inside Jenkins so it can push images to your account - generating an access token from your [Docker Hub account](https://hub.docker.com/settings/security) helps keep your password safe.
+
+When you push the tags for your new images, it will look something like this:
+
+![](/img/solution-part-4-docker-hub.png)
+
+🥅 Goals
+
+- Add a publish stage to your pipeline to push the newly-built images to Docker Hub (or your choice of registry)
+
+- Your images should be tagged with the specific build version (e.g. `:21.12-15`) and you should also push the same image with the release cycle as a tag (e.g. `:21.12`)
+
+- The published images should contain labels with the build version and the Git commit hash, so we have an audit trail from containers back to the build and source code
+
+📚 Reference
+
+- [Accessing Images on Registries]() covers pushing images and authenticating with registries
+
+- [Building Docker Images with Jenkins]() includes the details of using environment variables in Jenkinsfiles to construct the image tag
+
+- [Building Apps with Compose]() has an example of using build arguments to set values for image labels
+
+<details>
+  <summary>💡 Hints</summary>
+
+Remember that you need to have permission to push an image to a registry - you won't be able to push to the `widgetario` organization on Docker Hub, so you'll need to set your own account details in your image names.
+
+To get the build number and Git commit into the image labels, you need to traverse down from the Jenkins environment variables through the build arguments in the Compose file down to the arguments specified in the Dockerfiles. You should have defaults configured too, so developers can use the same commands outside of Jenkins.
+
+You'll use a new build stage in the pipeline for the push, so it only happens if the build and test stages complete successfully. You should limit the number of steps you run inside a `withCredentials` block so the authentication details aren't in scope any longer than they need to be.
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+If you didn't get part 4 finished, you can check out the sample solution from `solution/part-4`:
+
+- [Jenkinsfile](./solution/part-4/jenkins/Jenkinsfile) - adds a push stage which logs in to Docker Hub using the stored credentials and pushes the images which have already been built with a versioned tag; a second publish stages builds images with the release tag and pushes them
+
+- [build.yml](./solution/part-4/compose/build.yml) - adds build version and Git commit arguments to the build, set to load from environment variables or use defaults
+
+- [release.yml](./solution/part-4/compose/release.yml) - overrides the image names to remove the build number - used in Jenkins to push the release tag
+
+- [stock-api/Dockerfile](./solution\part-4\docker\stock-api\Dockerfile) - adds build arguments for the build version and git commit - identical code is in the Dockerfiles for all other components
+
+You'll need to store your Docker Hub authentication in Jenkins - create a username/password credential called `docker-hub`.
+
+Then copy from the sample solution to the project directory - this will overwrite your existing folders with the solution Dockerfiles, Compose files and Jenkinsfile:
 
 ```
 mv project/compose project/compose.bak
@@ -335,6 +373,8 @@ cp -r solution/part-4/docker project/
 cp -r solution/part-4/jenkins project/
 ```
 
+Now add all those changes to your local Git server:
+
 ```
 git add --all
 
@@ -343,26 +383,62 @@ git commit -m 'Part 4 solution'
 git push project main
 ```
 
-Check in Docker Hub, e.g.
+And then run a new build in Jenkins. When it completes you should see your new images listed on Docker Hub, and when you inspect an image you should see the build tags in the labels.
 
-![](/img/solution-part-4-docker-hub.png)
+</details><br/>
 
-docker image inspect widgetario/stock-api:21.12-21
+## Part 5 - Model for Production
 
-Check labels
+Well, look at that: we have a pipeline which builds from source code, runs a smoke test for the app and pushes versioned deployment packages to a central repository. Soon we'll be ready to add a Continuous Deployment stage.
 
-# Part 5 - Model for Production
+But first we need to put together another application model, because in production we won't be using Docker Compose, we'll be running on Kubernetes. For this part you'll need to write Kubernetes YAML specs to model out the application - save your file(s) in the `project/kubernetes` folder.
 
-- svc & deployment for each component
-- for web have nodeport 30008 & loadbalancer 80 services
-- run apis & web w/ 2 replicas each
-- use release version - imagepullpolicy=always
-- include ops labels for app management 
+Start by getting the app running in your local Kubernetes cluster using the Docker images you published in your pipeline. You'll need to model the compute and networking parts of the app, but we'll continue to use the default configuration settings in the images.
 
-deploy to local environment
 
-soln.
+🥅 Goals
 
+- Create Kubernetes YAML files to model the Widgetario application, with high availability and scale: 2 instances of each of the web and API components, and 1 of the database
+
+- Use the release version of your published images to run each component, but include an [image pull policy]() to make sure the latest image is always downloaded
+
+- Your model needs to include networking between components and into the web app from outside the cluster
+
+- We need to support different types of cluster, so your networking should include access for clusters which can provision an external load balancer, and those which can't
+
+- Include labels in your resource metadata to make it easy to identify all the components of the app
+
+📚 Reference
+
+- [Networking Pods with Services]() covers communication between components and into the Kubernetes cluster
+
+- [Scaling and Managing Pods with Deployments]() includes running Pods at scale
+
+<details>
+  <summary>💡 Hints</summary>
+
+This isn't as bad as it looks. Remember that Kubernetes application models can be quite similar so you could start with an existing app as the basis and just tweak the setup for Widgetario.
+
+Kubernetes needs more detail in the model, so you'll need to check back to the architecture diagram to make sure you're using the correct ports for network communication.
+
+Start by running a single replica for each component and test them using the same endpoints you used in the pipeline to verify they're working. When you have the whole app running, then it's time to scale up.
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+If you didn't get part 5 finished, you can check out the sample solution from `solution/part-5`:
+
+- [products-db.yaml](./solution\part-5\kubernetes\widgetario\products-db.yaml) - models the database with a Deployment and ClusterIP Service providing access on port `5432` on the DNS name `products-db`
+
+- [products-api.yaml](./solution\part-5\kubernetes\widgetario\products-api.yaml) - models the products API with a Deployment and ClusterIP Service providing access on port `80` on the DNS name `products-api`
+
+- [stock-api.yaml](./solution\part-5\kubernetes\widgetario\stock-api.yaml) - models the stock API with a Deployment and ClusterIP Service providing access on port `8080` on the DNS name `stock-api`
+
+- [web.yaml](./solution\part-5\kubernetes\widgetario\web.yaml) - models the web application with a Deployment and NodePort and LoadBalancer Services
+
+Copy from the sample solution to the project directory - this will back up any existing Kubernetes YAML you had:
 
 ```
 mv project/kubernetes project/kubernetes.bak
@@ -370,53 +446,82 @@ mv project/kubernetes project/kubernetes.bak
 cp -r solution/part-5/kubernetes project/
 ```
 
-```
-k apply -f project/kubernetes/widgetario
-```
-
-check:
+Now run the application using your local cluster:
 
 ```
-k get po -l app=widgetario
-
-k get svc -l app=widgetario
+kubectl apply -f project/kubernetes/widgetario
 ```
 
-localhost:30008
-
-debug:
+Check all the Pods and Services are created:
 
 ```
-k logs -l component=products-api
+kubectl get po -l app=widgetario
 
-kubectl port-forward deploy/products-api 8089:80
-
-# http://localhost:8089/products
-
-# ctrl-c
+kubectl get svc -l app=widgetario
 ```
 
-```
-k logs -l component=stock-api
+And test the app at http://localhost:30008 or http://localhost:80
 
-kubectl port-forward deploy/stock-api 8089:8080
-
-# http://localhost:8089/stock/1
-
-# ctrl-c
-```
-
-```
-k exec deploy/web -- cat /logs/app.log
-
-kubectl port-forward deploy/web 8089:80
-
-# http://localhost:8089
-
-# ctrl-c
-```
+</details><br/>
 
 ## Part 6 - Continuous Deployment
+
+Now we're ready to put this thing live! You'll add a deployment stage to the Jenkins build to send your Kubernetes manifests to a production cluster running in the cloud.
+
+> Your instructor will give you the connection details to your cluster - it will be a [kubeconfig]() file, which you'll need to store in Jenkins
+
+Your Jenkins instance has the `kubectl` command line installed, but your pipeline commands will need to load the kubeconfig file to connect to the remote cluster.
+
+When you have your build working, you'll change a config setting for the web application. The build will run, package and publish new images and trigger the update in Kubernetes. Your site will then look like this:
+
+![](/img/solution-part-6-widgetario.png)
+
+🥅 Goals
+
+- Add to your Jenkins pipeline so new releases are automatically deployed to your production cluster
+
+- Print the Service IP address after deployment - it will be a public IP address in Azure where you can browse to the app
+
+- When the pipeline works, verify that updates are deployed by switching the default theme to smart mode, setting this environment variable: `Widgetario__Theme="dark"`
+
+📚 Reference
+
+We didn't cover this explicitly in the classes, but you should be able to piece it together. These resources will help:
+
+- [Using credentials in Jenkins pipelines](https://www.jenkins.io/doc/pipeline/steps/credentials-binding/) - includes using files as credentials
+
+- [Using kubeconfig files with Kubectl](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) - shows how to load an explicit config file for `kubectl` commands
+
+<details>
+  <summary>💡 Hints</summary>
+
+This is just a Kubernetes deployment, using the YAML files you got working in part 5. The only difference is you'll run the commands inside your Jenkins pipeline, and you'll need to load the configuration to point to your remote cluster.
+
+Your production cluster is running in Azure Kubernetes Service which supports LoadBalancer deployments. It can take a few moments for a new LoadBalancer to get a public IP address, so you may need to trigger your pipeline a couple of times to see it.
+
+There are different ways to set the dark mode config setting - if you do it in the Dockerfile then you may find the Kubernetes deployment doesn't get updated. That's because the Pod spec hasn't changed, so your pipeline will need to force a new rollout.
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+If you didn't get part 6 finished, you can check out the sample solution from `solution/part-6`:
+
+- [Jenkinsfile](./solution/part-6/jenkins/Jenkinsfile) - adds a deployment stage
+
+- [build.yml](./solution/part-4/compose/build.yml) - adds build version and Git commit arguments to the build, set to load from environment variables or use defaults
+
+- [release.yml](./solution/part-4/compose/release.yml) - overrides the image names to remove the build number - used in Jenkins to push the release tag
+
+- [stock-api/Dockerfile](./solution\part-4\docker\stock-api\Dockerfile) - adds build arguments for the build version and git commit - identical code is in the Dockerfiles for all other components
+
+You'll need to store your Docker Hub authentication in Jenkins - create a secret file  credential called `aks-kubeconfig`.
+
+<< DONE TO HERE >>
+
+</details><br/>
+
 
 - download kubeconfig file
 - deploy to production AKS cluster on every build
