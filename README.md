@@ -398,7 +398,7 @@ cp -r solution/part-6/docker project/
 ## Part 7 - DevSecOps, scanning
 
 - integrate tools - sonar & trivy
-- optimize images
+- sonar for java & .net; trivy for those plus go  (no db - will be svc)
 - deploy only on success
 
 - log into sonarqube at http://localhost:9000, then http://localhost:9000/account/security/ to generate token 
@@ -437,10 +437,14 @@ git push project main
 
 ## Part 8 - DevSecOps, golden images
 
-- integrate tools - sonar & trivy
+- build image library
+- update app images to use library (no db - will be svc)
 
-## Part 8 - Day 2 Ops (TODO)
+now works and deploys
 
-- deploy monitoring & logging
-- pf to access dashboards/search
-- sidecar for web 
+still to do:
+
+- optimize dockerfiles, remove build scripts & split restore/build
+- optimize pipeline, split for ci & cd?
+- buildkit much faster but running scans in docker build not compatible; split scans into separate stages?
+- deploy explicit version, helm/kustomize

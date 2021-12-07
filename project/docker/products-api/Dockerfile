@@ -1,47 +1,19 @@
-FROM maven:3.6.3-jdk-11 AS builder
-ARG SONAR_PROJECT='widgetario-products-api'
-ARG SONAR_URL='http://sonarqube:9000'
-ARG SONAR_TOKEN=''
-ARG SONAR_ENFORCE_GATE='false'
+# TODO
 
-WORKDIR /usr/src/api
-COPY src/products-api/. .
+# We use Maven version 3.6.3 for the build, with JDK 11.
 
-RUN chmod +x restore.sh && ./restore.sh
-RUN chmod +x build.sh  && ./build.sh
+# Run the build scripts:
+#  - src/products-api/restore.sh
+#  - src/products-api/build.sh
+#  you'll need to make the files executable first with chmod +x <filename>.
 
-RUN if [ "$SONAR_TOKEN" != "" ] ; then \
-        mvn sonar:sonar \
-        -Dsonar.projectKey=h$SONAR_PROJECT \
-        -Dsonar.host.url=$SONAR_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.qualitygate.wait=$SONAR_ENFORCE_GATE ; \
-    fi
+# Build output is a single JAR file:
+#  /usr/src/api/target/products-api-0.1.0.jar
 
-# app
-FROM widgetario/java:jre-21.12 AS app
+# The app should run on OpenJDK 11.0.12, it can use a minimal OS. 
 
-WORKDIR /app
-COPY --from=builder /usr/src/api/target/products-api-0.1.0.jar .
+# We need to set two environment variables - 
+# JRE_VERSION and APP_VERSION. 
 
-EXPOSE 80
-ENTRYPOINT ["java", "-jar", "/app/products-api-0.1.0.jar"]
-
-ENV JRE_VERSION="11.0.12" \
-    APP_VERSION="0.4.0"
-
-# CVE scanner
-FROM app AS scan
-ARG TRIVY_SCAN='0'
-COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
-RUN if [ "$TRIVY_SCAN" = "1" ] ; then \
-      trivy rootfs -s CRITICAL --exit-code 1 --no-progress / ; \
-    fi
-
-# final image
-FROM app as final
-
-ARG BUILD_VERSION=local
-ARG GIT_COMMIT=local
-LABEL build_version=${BUILD_VERSION}
-LABEL commit_sha=${GIT_COMMIT}
+# The startup command needs to run the JAR file from the build:
+#  java -jar products-api-0.1.0.jar
