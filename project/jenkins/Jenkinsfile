@@ -4,6 +4,7 @@ pipeline {
     REPOSITORY="widgetario"
     RELEASE="21.12"    
     SONAR_ENFORCE_GATE="true"
+    DOCKER_BUILDKIT=0
   }
   stages {
     stage('Audit tools') {                        
