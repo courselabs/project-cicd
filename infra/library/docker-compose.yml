@@ -3,7 +3,7 @@ version: "3.7"
 services: 
 
   base:
-    image: widgetario/base:jdk-21.12
+    image: widgetario/base:21.12
     build:
       context: ./base
       args:

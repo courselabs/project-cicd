@@ -13,7 +13,7 @@ pipeline {
       steps {
         echo "Building image library"
         sh '''
-          docker compose -f infra/build/docker-compose.yml build --pull
+          docker compose -f infra/library/docker-compose.yml build --pull
         '''
       }
     }
