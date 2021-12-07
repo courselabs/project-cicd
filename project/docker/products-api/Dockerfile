@@ -35,7 +35,7 @@ FROM app AS scan
 ARG TRIVY_SCAN='0'
 COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
 RUN if [ "$TRIVY_SCAN" = "1" ] ; then \
-      trivy rootfs -s HIGH --exit-code 1 --no-progress / ; \
+      trivy rootfs -s CRITICAL --exit-code 1 --no-progress / ; \
     fi
 
 # final image
