@@ -3,6 +3,7 @@ ARG SONAR_PROJECT='widgetario-products-api'
 ARG SONAR_URL='http://sonarqube:9000'
 ARG SONAR_TOKEN=''
 ARG SONAR_ENFORCE_GATE='false'
+ARG TRIVY_SCAN='0'
 
 WORKDIR /usr/src/api
 COPY src/products-api/. .
@@ -33,7 +34,9 @@ ENV JRE_VERSION="11.0.12" \
 # CVE scanner
 FROM app AS scan
 COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
-RUN trivy rootfs -s HIGH --exit-code 1 --no-progress /
+RUN if [ "$TRIVY_SCAN" == "1" ] ; then \
+      trivy rootfs -s HIGH --exit-code 1 --no-progress / ; \
+    fi
 
 # final image
 FROM app as final

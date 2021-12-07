@@ -16,6 +16,9 @@ pipeline {
       }
     }
     stage('Build') {
+      environment {
+        TRIVY_SCAN="1"
+      }
       steps {
         echo "Building images for release: ${RELEASE}"
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {

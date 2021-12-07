@@ -25,7 +25,9 @@ COPY --from=builder /server .
 # CVE scanner
 FROM app AS scan
 COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
-RUN trivy rootfs -s HIGH --exit-code 1 --no-progress /
+RUN if [ "$TRIVY_SCAN" == "1" ] ; then \
+      trivy rootfs -s HIGH --exit-code 1 --no-progress / ; \
+    fi
 
 # final image
 FROM app as final
