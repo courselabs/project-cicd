@@ -36,7 +36,7 @@ COPY --from=builder /out/ .
 # CVE scanner
 FROM app AS scan
 COPY --from=aquasec/trivy:0.21.1 /usr/local/bin/trivy /usr/local/bin/trivy
-RUN trivy client --remote http://trivy:8080 rootfs -s HIGH --exit-code 1 --no-progress
+RUN trivy rootfs -s HIGH --exit-code 1 --no-progress
 
 # final image
 FROM app as final
