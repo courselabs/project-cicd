@@ -1,9 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:3.1-alpine AS sdk
 
-# Sonar Scanner CLI needs JRE:
-ARG OPENJDK_VERSION='11.0.13_p8-r0'
-RUN apk add --no-cache \
-    openjdk11-jre=${OPENJDK_VERSION}
+# Sonar Scanner CLI needs JRE: 
+RUN apk add --no-cache openjdk11-jre
 
 # Install the scanner:
 RUN dotnet tool install --tool-path /usr/bin dotnet-sonarscanner
