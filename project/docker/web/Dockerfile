@@ -1,9 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:3.1-alpine AS sdk
 
-# Sonar Scanner CLI needs JRE: 
+# Sonar Scanner & JRE dep:
 RUN apk add --no-cache openjdk11-jre
-
-# Install the scanner:
 RUN dotnet tool install --tool-path /usr/bin dotnet-sonarscanner
 
 FROM sdk AS builder
@@ -17,9 +15,9 @@ COPY src/web/ .
 
 RUN chmod +x restore.sh && ./restore.sh
 
-RUN if [ "$SONAR_TOKEN" != "" ] ; then dotnet sonarscanner begin /k:$SONAR_PROJECT /d:sonar.host.url=$SONAR_URL /d:sonar.login=$SONAR_TOKEN /d:sonar.qualitygate.wait=$SONAR_ENFORCE_GATE ; fi
+RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner begin /k:$SONAR_PROJECT /d:sonar.host.url=$SONAR_URL /d:sonar.login=$SONAR_TOKEN /d:sonar.qualitygate.wait=$SONAR_ENFORCE_GATE ; fi
 RUN chmod +x build.sh  && ./build.sh
-RUN if [ "$SONAR_TOKEN" != "" ] ; then dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
+RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
 
 # app image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
