@@ -1,10 +1,5 @@
-FROM mcr.microsoft.com/dotnet/sdk:3.1-alpine AS sdk
+FROM widgetario/dotnet:sdk:20.12 AS builder
 
-# Sonar Scanner & JRE dep:
-RUN apk add --no-cache openjdk11-jre
-RUN dotnet tool install --tool-path /usr/bin dotnet-sonarscanner
-
-FROM sdk AS builder
 ARG SONAR_PROJECT='widgetario-web'
 ARG SONAR_URL='http://sonarqube:9000'
 ARG SONAR_TOKEN=''
@@ -20,7 +15,7 @@ RUN chmod +x build.sh  && ./build.sh
 RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
 
 # app image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS app
+FROM widgetario/dotnet:aspnet-20.12 AS app
 
 ENV Widgetario__ProductsApi__Url="http://products-api/products" \
     Widgetario__StockApi__Url="http://stock-api:8080/stock" \
