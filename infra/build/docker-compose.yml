@@ -5,11 +5,36 @@ services:
   gogs:
     image: courselabs/gogs:0.12.3
     ports:
-      - "3000:3000"
+      - "3000:3000"   
+    networks:
+      - cicd-infra  
 
   jenkins:
-    image: courselabs/jenkins
+    image: courselabs/jenkins:2.319.1
     ports:
       - "8081:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock  
+    networks:
+      - cicd-infra  
+      
+  sonarqube:
+    image: sonarqube:8.9.3-community
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    ports:
+      - "9000:9000"  
+    networks:
+      - cicd-infra  
+
+  trivy:
+    image: aquasec/trivy:0.21.1
+    command: server --listen 0.0.0.0:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  
+    networks:
+      - cicd-infra  
+
+networks:
+  cicd-infra:
+    name: cicd-infra

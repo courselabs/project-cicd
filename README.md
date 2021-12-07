@@ -395,11 +395,37 @@ mv project/docker project/docker.bak
 cp -r solution/part-6/docker project/
 ```
 
-## Part 7 - DevSecOps (TODO)
+## Part 7 - DevSecOps
 
 - integrate tools - sonar & trivy
 - optimize images
 - deploy only on success
+
+- log into sonarqube at http://localhost:9000, then http://localhost:9000/account/security/ to generate token 
+- add to Jenkins as secret text cred 
+
+
+soln.
+
+
+```
+mv project/compose project/compose.bak
+mv project/docker project/docker.bak
+mv project/jenkins project/jenkins.bak
+
+cp -r solution/part-7/compose project/
+cp -r solution/part-7/docker project/
+cp -r solution/part-7/jenkins project/
+```
+
+```
+git add --all
+
+git commit -m 'Part 7 solution'
+
+git push project main
+```
+
 
 ## Part 8 - Day 2 Ops (TODO)
 

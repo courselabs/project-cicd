@@ -1,0 +1,41 @@
+services:
+
+  products-db:
+    build:
+      context: ../
+      dockerfile: docker/db/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
+      network: cicd-infra
+
+  products-api:
+    build:
+      context: ../
+      dockerfile: docker/products-api/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
+        SONAR_TOKEN: ${SONAR_TOKEN}
+        SONAR_ENFORCE_GATE: ${SONAR_ENFORCE_GATE:-false}
+      network: cicd-infra
+
+  stock-api:
+    build:
+      context: ../
+      dockerfile: docker/stock-api/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
+      network: cicd-infra
+
+  web:
+    build:
+      context: ../
+      dockerfile: docker/web/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
+        SONAR_TOKEN: ${SONAR_TOKEN}
+        SONAR_ENFORCE_GATE: ${SONAR_ENFORCE_GATE:-false}
+      network: cicd-infra
