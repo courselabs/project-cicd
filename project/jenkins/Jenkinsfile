@@ -1,1 +1,79 @@
-# TODO
+pipeline {
+  agent any
+  environment {
+    REPOSITORY="widgetario"
+    RELEASE="21.12"
+  }
+  stages {
+    stage('Audit tools') {                        
+      steps {
+        sh '''
+          docker version
+          docker compose version
+        '''
+      }
+    }
+    stage('Build') {
+      steps {
+        echo "Building images for release: ${RELEASE}"
+        sh '''
+          docker compose -f project/compose/docker-compose.yml -f project/compose/build.yml build --pull
+        '''
+      }
+    }
+    stage('Smoke Test Deploy') {
+      steps {
+        script {
+          try{
+            echo "Running local containers"
+            sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml up -d'
+          }
+          catch(x){
+            echo "Repeating in case of i/o timeout error"
+            sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml up -d'
+          }
+        }    
+      } 
+    }
+    stage('Smoke Test Verify') {
+      steps {
+        echo "Testing HTTP services"
+        sh '''
+          stock_address=$(docker port smoke-stock-api-1 8080)
+          wget -O- -q "${stock_address/0.0.0.0/host.docker.internal}/healthz"
+        '''
+        sh '''
+          web_address=$(docker port smoke-web-1 80)
+          wget -O- -q "${web_address/0.0.0.0/host.docker.internal}/up"
+        '''
+        script {
+          try{
+            sh '''
+              products_address=$(docker port smoke-products-api-1 80)
+              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+            '''
+          }
+          catch(x){
+            sleep(20)
+            sh '''
+              products_address=$(docker port smoke-products-api-1 80)
+              wget -O- -q "${products_address/0.0.0.0/host.docker.internal}/healthz"
+            '''
+          }
+        }
+      }
+    }
+  }
+  post{
+    always {      
+      script {
+        try{
+          sh 'docker compose -p smoke -f project/compose/docker-compose.yml -f project/compose/test.yml down' 
+        }
+        catch(x){
+          echo "Ignoring compose down failure"
+        }
+      }       
+    }
+  }
+}

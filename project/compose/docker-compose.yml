@@ -1,1 +1,24 @@
-# TODO
+services:
+
+  products-db:
+    image: ${REPOSITORY:-widgetario}/products-db:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
+    networks:
+      - app-net
+
+  products-api:
+    image: ${REPOSITORY:-widgetario}/products-api:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
+    networks:
+      - app-net
+
+  stock-api:
+    image: ${REPOSITORY:-widgetario}/stock-api:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
+    networks:
+      - app-net
+  
+  web:
+    image: ${REPOSITORY:-widgetario}/web:${RELEASE:-21.12}-${BUILD_NUMBER:-0}
+    networks:
+      - app-net
+
+networks:
+  app-net:
