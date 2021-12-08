@@ -12,7 +12,7 @@ You'll use all the key skills you've learned, and:
 
 It will help you understand which areas you're comfortable with and where you need to spend some more time.
 
-And it will give you a pipeline that you built yourself, which you can use as a reference when you need to add CI/CD to a real project.
+And it will give you a pipeline that you built yourself, which you can use as a reference when you're working with CI/CD on a real project.
 
 > ℹ There are multiple parts to the project - you're not expected to complete them all. Just get as far as you can in the time, it's all great experience.
 
@@ -34,7 +34,7 @@ There are four components to the app, each will need its own Docker image. The s
 
 - Website - an ASP.NET Core website which uses the Products and Stock APIs ([web/Dockerfile](./project/docker/web/Dockerfile))
 
-You should be able to get all the components to build without any errors.
+You should be able to get all the components to build without any errors
 
 🥅 Goals
 
@@ -42,24 +42,24 @@ You should be able to get all the components to build without any errors.
 
 - Verify you can run a container from each image
 
-- Every container should print application logs, but may exit with errors - that's OK
+- The containers should start - most will print application logs, one will exit with errors, that's OK
 
-- You don't need to run all the containers and test the whole app at this stage
+- **You don't need to run all the containers and test the whole app at this stage**
 
 📚 Reference
 
 - [Building Container Images](https://devsecops.courselabs.co/labs/images/) covers the basics of the Dockerfile
 
-- [Multi-stage Builds](https://devsecops.courselabs.co/labs/multi-stage/) looks at compiling from source code in containers
+- [Multi-Stage Builds](https://devsecops.courselabs.co/labs/multi-stage/) looks at compiling from source code in containers
 
 <details>
   <summary>💡 Hints</summary>
 
 We have the source code so you'll want to use multi-stage builds for the application components (except the database).
 
-The build steps are already written in scripts, so your job will be to find the right base images from Docker Hub and copy in the correct folder structure.
+The build steps are already written in scripts, so your job will be to find the right base images from Docker Hub and copy in the correct folder structure. If you stick to the existing structure (`project/src` and `project/docker`) it will be easier to compare your work to the sample solution.
 
-Stick to official images :)
+Make sure you only use official images for your apps :)
 
 </details><br/>
 
@@ -76,15 +76,15 @@ If you didn't get part 1 finished, you can check out the sample solution from `s
 
 - Website [Dockerfile](./solution/part-1/docker/web/Dockerfile)
 
-Copy from the sample solution to the project directory:
+Copy from the sample solution to the project directory - this makes a backup of your folder first:
 
 ```
-mv project/docker project/docker.bak
+mv project/docker project/docker-part1.bak
 
 cp -r solution/part-1/docker project/
 ```
 
-Then build the images and run containers - make sure you use the project directory as the context so Docker can access the src and docker folders:
+Then build the images and run containers - make sure you use the `project` directory as the context so Docker can access the `src` and `docker` folders:
 
 _Database_
 
@@ -138,9 +138,9 @@ docker run --rm -it widgetario/web
 
 ## Part 2 - Application Modelling
 
-We've made a good start - all the components are packaged into container images now. Your next job is to get it running in Docker Compose so Widgetario can see how it works in a test environment. You should be able to run the app with a single command and browse to the site on your local machine.
+We've made a good start - all the components are packaged into container images now. Your next job is to get it running in Docker Compose so Widgetario can see how it works in a test environment. You should be able to run the app and browse to the site on your local machine.
 
-The Compose definition should also include all the build details, so we can build all the images with a single `docker-compose` command. Remember the Compose syntax lets you inject environment variables into values (like image names) which will be useful when we go on to build with Jenkins.
+Your Compose definition should also include all the build details, so you can build all the images with a single `docker-compose` command. Remember the Compose syntax lets you inject environment variables into values (like image names) which will be useful when we go on to build with Jenkins.
 
 You should put your Compose file(s) in the `project/compose` folder. When you're done you should be able to browse to http://localhost:8080 and see this:
 
@@ -165,7 +165,7 @@ You should put your Compose file(s) in the `project/compose` folder. When you're
 <details>
   <summary>💡 Hints</summary>
 
-There's just enough information in architecture diagram to help: the component names are the DNS names the app expects to use, and the ports specify where each component is listening for traffic.
+There's just enough information in the architecture diagram to help: the component names are the DNS names the app expects to use, and the ports specify where each component is listening for traffic.
 
 You don't need to apply any configuration settings in the model, the source code has a default set of config which will work if you model the names correctly.
 
@@ -182,15 +182,15 @@ If you didn't get part 2 finished, you can check out the sample solution from `s
 
 - [build.yml](./solution/part-2/compose/build.yml) - adds the build details in an override file 
 
-Copy from the sample solution to the project directory - this will use your own Dockerfiles in the `project/docker` directory:
+Copy from the sample solution to the project directory - this will use your existing Dockerfiles in the `project/docker` directory and make a backup of your Compose directory:
 
 ```
-mv project/compose project/compose.bak
+mv project/compose project/compose-part2.bak
 
 cp -r solution/part-2/compose project/
 ```
 
-Build with the new image tags:
+Build with Compose, using the new image tags:
 
 ```
 docker-compose -f project/compose/docker-compose.yml -f project/compose/build.yml build
@@ -212,7 +212,7 @@ Okay, now we have the packaging files and a one-line build script, we can start 
 
 First we want to define a simple Jenkins pipeline which fetches the project repo, builds all the images and runs a test by starting containers. Your Compose model from part 2 is the starting point for that.
 
-Run the build containers from `infra/build/docker-compose.yml`. When they're up you can browse to Jenkins at http://localhost:8081 and to Gogs (the Git server) at http://localhost:3000; the credentials for both are the same:
+Run the build server containers from `infra/build/docker-compose.yml`. When they're up you can browse to Jenkins at http://localhost:8081 and to Gogs (the Git server) at http://localhost:3000; the credentials for both are the same:
 
 - username: `courselabs`
 - password: `student`
@@ -255,7 +255,7 @@ Remember you'll need to commit your changes and push them again whenever you upd
 
 Take your Jenkinsfile one stage at a time - get the images building, then start the containers running and then add your tests. You're certain to have issues with paths or syntax problems, so it's best to start simple and iterate.
 
-When you deploy the containers during the pipeline, remember they're sharing the same Docker engine where you run other containers. You may get port collisions, so it's good if your test deployment uses different (maybe random?) ports.
+When you deploy the containers during the pipeline, remember they're sharing the same Docker engine you use to run other containers. You may get port collisions, so it's good if your test deployment uses different (maybe random?) ports.
 
 The web and API containers will all respond to the `wget` call - but one of the containers takes a while to start up. Jenkins has [try/catch](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-failure) blocks to deal with errors and the [sleep](https://www.jenkins.io/doc/pipeline/steps/workflow-basic-steps/#sleep-sleep) step is useful to give things time to be ready.
 
@@ -278,11 +278,11 @@ To use the sample solution, start by running the build containers:
 docker-compose -f infra\build/docker-compose.yml up -d
 ```
 
-Then copy from the sample solution to the project directory - this will use the existing Dockerfiles in the `project/docker` directory:
+Then copy from the sample solution to the project directory - this will use the existing Dockerfiles in the `project/docker` directory and make backups of your other directories:
 
 ```
-mv project/compose project/compose.bak
-mv project/jenkins project/jenkins.bak
+mv project/compose project/compose-part3.bak
+mv project/jenkins project/jenkins-part3.bak
 
 cp -r solution/part-3/compose project/
 cp -r solution/part-3/jenkins project/
@@ -342,7 +342,7 @@ Remember that you need to have permission to push an image to a registry - you w
 
 To get the build number and Git commit into the image labels, you need to traverse down from the Jenkins environment variables through the build arguments in the Compose file down to the arguments specified in the Dockerfiles. You should have defaults configured too, so developers can use the same commands outside of Jenkins.
 
-You'll use a new build stage in the pipeline for the push, so it only happens if the build and test stages complete successfully. You should limit the number of steps you run inside a `withCredentials` block so the authentication details aren't in scope any longer than they need to be.
+You'll use a new build stage in the pipeline for the push, so it only happens if the build and test stages complete successfully. You should limit the number of steps you run inside a `withCredentials` block so the authentication details aren't in scope any longer than they need to be. Any problems should be clear in the job logs - most likely it will be a mismatch between the account details and the image names.
 
 </details><br/>
 
@@ -361,19 +361,19 @@ If you didn't get part 4 finished, you can check out the sample solution from `s
 
 You'll need to store your Docker Hub authentication in Jenkins - create a username/password credential called `docker-hub`.
 
-Then copy from the sample solution to the project directory - this will overwrite your existing folders with the solution Dockerfiles, Compose files and Jenkinsfile:
+Then copy from the sample solution to the project directory - this will make backups and then overwrite your existing folders with the solution Dockerfiles, Compose files and Jenkinsfile:
 
 ```
-mv project/compose project/compose.bak
-mv project/docker project/docker.bak
-mv project/jenkins project/jenkins.bak
+mv project/compose project/compose-part4.bak
+mv project/docker project/docker-part4.bak
+mv project/jenkins project/jenkins-part4.bak
 
 cp -r solution/part-4/compose project/
 cp -r solution/part-4/docker project/
 cp -r solution/part-4/jenkins project/
 ```
 
-Now add all those changes to your local Git server:
+Now add the changes to your local Git server:
 
 ```
 git add --all
@@ -383,7 +383,7 @@ git commit -m 'Part 4 solution'
 git push project main
 ```
 
-And then run a new build in Jenkins. When it completes you should see your new images listed on Docker Hub, and when you inspect an image you should see the build tags in the labels.
+And run a new build in Jenkins. When it completes you should see your new images listed on Docker Hub, and when you inspect an image you should see the build tags in the labels.
 
 </details><br/>
 
@@ -395,14 +395,13 @@ But first we need to put together another application model, because in producti
 
 Start by getting the app running in your local Kubernetes cluster using the Docker images you published in your pipeline. You'll need to model the compute and networking parts of the app, but we'll continue to use the default configuration settings in the images.
 
-
 🥅 Goals
 
 - Create Kubernetes YAML files to model the Widgetario application, with high availability and scale: 2 instances of each of the web and API components, and 1 of the database
 
 - Use the release version of your published images to run each component, but include an [image pull policy]() to make sure the latest image is always downloaded
 
-- Your model needs to include networking between components and into the web app from outside the cluster
+- Your model needs to include networking between components, and into the web app from outside the cluster
 
 - We need to support different types of cluster, so your networking should include access for clusters which can provision an external load balancer, and those which can't
 
@@ -417,11 +416,11 @@ Start by getting the app running in your local Kubernetes cluster using the Dock
 <details>
   <summary>💡 Hints</summary>
 
-This isn't as bad as it looks. Remember that Kubernetes application models can be quite similar so you could start with an existing app as the basis and just tweak the setup for Widgetario.
+This isn't as bad as it looks. Remember that Kubernetes application models can be quite similar between projects, so you could start with an existing app as the basis and just tweak the setup for Widgetario.
 
 Kubernetes needs more detail in the model, so you'll need to check back to the architecture diagram to make sure you're using the correct ports for network communication.
 
-Start by running a single replica for each component and test them using the same endpoints you used in the pipeline to verify they're working. When you have the whole app running, then it's time to scale up.
+Start by running a single replica for each component and test them using the same endpoints you used in the pipeline to verify they're working (a port forward will help here). When you have the whole app running, then it's time to scale up.
 
 </details><br/>
 
@@ -441,7 +440,7 @@ If you didn't get part 5 finished, you can check out the sample solution from `s
 Copy from the sample solution to the project directory - this will back up any existing Kubernetes YAML you had:
 
 ```
-mv project/kubernetes project/kubernetes.bak
+mv project/kubernetes project/kubernetes-part5.bak
 
 cp -r solution/part-5/kubernetes project/
 ```
@@ -516,38 +515,17 @@ If you didn't get part 6 finished, you can check out the sample solution from `s
 
 - [stock-api/Dockerfile](./solution\part-4\docker\stock-api\Dockerfile) - adds build arguments for the build version and git commit - identical code is in the Dockerfiles for all other components
 
-You'll need to store your Docker Hub authentication in Jenkins - create a secret file  credential called `aks-kubeconfig`.
+You'll need to store your Docker Hub authentication in Jenkins - create a secret file credential called `aks-kubeconfig` and upload the kubeconfig file for your AKS cluster.
 
-<< DONE TO HERE >>
-
-</details><br/>
-
-
-- download kubeconfig file
-- deploy to production AKS cluster on every build
-- print lb service details to see IP
-- test deployment
-- update docker image for web to default dark mode
-- build & verify new version is deployed
-
-- use credentials file in build: https://www.jenkins.io/doc/pipeline/steps/credentials-binding/
-- kubectl is installed, use kubectl options to find out how to load a config file
-
-hints.
-
-rollout restart - spec not changed
-clumsy - helm or kustomize to deploy explicit version
-
-soln.
-
-credentials - secret file, upload AKS kubeconfig
+For your first deployment, copy in the solution files - this will backup your existing Jenkins folder:
 
 ```
-mv project/jenkins project/jenkins.bak
+mv project/jenkins project/jenkins-part6.bak
 
 cp -r solution/part-6/jenkins project/
 ```
 
+Now add all the changes and push to Gogs:
 
 ```
 git add --all
@@ -557,49 +535,91 @@ git commit -m 'Part 6 solution'
 git push project main
 ```
 
-build
+Run the build again and check the logs. You should see the `EXTERNAL-IP` field in the output, which prints the public IP address for your app. If it says `Pending` then just repeat the build :)
 
-- check logs and open EXTERNAL-IP
+> If you need to debug and you want to run kubectl commands on the remote cluster, you can use the same kubeconfig file that you uploaded to Jenkins, e.g. `kubectl get svc --kubeconfig ./my.kubeconfig`
 
-- if you need to debug, use the same kubeconfig file in your local Kubectl
+Now you can test the update process. The sample solution sets the config setting in the Dockerfile, so the pipeline will build the image again and trigger a new rollout in Kubernetes.
 
-test build with update:
+Copy the Docker folder from the solution:
 
 ```
-mv project/docker project/docker.bak
+mv project/docker project/docker-part6.bak
 
 cp -r solution/part-6/docker project/
 ```
 
-## Part 7 - DevSecOps, scanning
+And trigger another build. When the build completes and you browse again to your public IP address, you should see the site in dark mode.
 
-- integrate tools - sonar & trivy
-- sonar for java & .net; trivy for those plus go  (no db - will be svc)
-- deploy only on success
+</details><br/>
 
-- log into sonarqube at http://localhost:9000, then http://localhost:9000/account/security/ to generate token 
-- add to Jenkins as secret text cred 
+## Part 7 - Static Analysis & Binary Scanning
 
-- check http://localhost:9000/projects to confirm sonar builds are clean (add quality gate)
+We have all the DevOps in our pipeline, but we're missing the Sec. Time to add some security tools, so we only deploy if we're confident the app is secure. We'll use SonarQube for static analysis of the code and Trivy to scan all the binaries.
 
-hints.
+Your job is to add both scans to the pipeline, so the application will only deploy if the images are free of security issues. In fact the images you build shouldn't get pushed to Docker Hub if there are security issues - the build should fail before the publish stage.
 
-buildkit off
-build needs to use infra network
-sonar in .net needs to start and end in same folder as build command
+Not all the components support all the scanning tools, so we'll focus on those that do.
 
-soln.
+🥅 Goals
 
+- Add SonarQube scans for the Java products API and the .NET website. You already have SonarQube running in a container along with Jenkins and Gogs (you can generate a token for Jenkins to use at http://localhost:9000/account/security/, log in with credentials `admin`/`admin`)
+
+- Your build should fail if the static analysis produces a security rating less than A for either component
+
+- Add Trivy scanning for the root filesystems of both API images and the web image (in production we'll use a managed database service, so we don't need to worry about the database image)
+
+- Your build should fail if the scans find any `CRITICAL` issues 
+
+- When security issues are found in the code or the binaries, the images should not be pushed to Docker Hub and the app should not be deployed
+
+- **If the build fails because of security problems, you don't need to fix it at this stage**
+
+📚 Reference
+
+- [Static Analysis](https://devsecops.courselabs.co/labs/static-analysis/) - covers integrating SonarQube scans into Docker builds for Java and .NET apps
+
+- [Security Scanning](https://devsecops.courselabs.co/labs/scanning/) - includes running Trivy inside a Docker build to scan the filesystem of the final application image
+
+<details>
+  <summary>💡 Hints</summary>
+
+You could add the scanning as separate stages in the Jenkins pipeline, or integrate them inside the Docker builds. There are advantages to both options, but if you include them in the Docker build then developers can run the scans locally too.
+
+SonarQube is running inside a container attached to the Docker network called `cicd-infra`. You can access the server from a multi-stage build at the address `http://sonarqube:9000`, if your build is using that network. That's a setting you can add in your Compose file **but** it's not supported by BuildKit so you'll need to set an environment variable in Jenkins to turn BuildKit off.
+
+You'll need to log in to SonarQube to generate a token for the builds to use, but you don't need to create projects in advance - they'll be created when the builds run. You can use the exercises as the basis to add scanning, but be careful with the .NET app - the SonarQube tool needs to run in the same directory as the build.
+
+Trivy can run as a separate stage in the Docker build, scanning the whole filesystem after the application image is built. Use the severity and exit-code flags to have the build fail if there are any critical issues.
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+The sample solution adds the scanning to the Docker build, with build arguments so you can turn scans on or off:
+
+- [products-api/Dockerfile](./solution\part-7\docker\products-api\Dockerfile) - adds SonarQube analysis to the build stage and Trivy scan as a separate stage; the [web Dockerfile]() does the same, and the [stock API Dockerfil]() just adds Trivy
+
+- [build.yml](./solution/part-7/compose/build.yml) - adds build arguments to enable SonarQube and Trivy, and runs the builds inside the `cicd-infra1` network so they can access SonarQube
+
+- [Jenkinsfile](./solution/part-7/jenkins/Jenkinsfile) - turns BuildKit off and enables SonarQube and Trivy scanning in the build stage; if either of the scans fail, the build fails before running the test containers
+
+You'll need to store your SonarQube token in Jenkins - create a secret text credential called `sonarqube-token` and paste in the token you generated from SonarQube.
+
+Then copy in the solution files - this will backup your existing Jenkins, Docker and Compose folders:
 
 ```
-mv project/compose project/compose.bak
-mv project/docker project/docker.bak
-mv project/jenkins project/jenkins.bak
+mv project/compose project/compose-part7.bak
+mv project/docker project/docker-part7.bak
+mv project/jenkins project/jenkins-part7.bak
 
 cp -r solution/part-7/compose project/
 cp -r solution/part-7/docker project/
 cp -r solution/part-7/jenkins project/
 ```
+
+Now add all the changes and push to Gogs:
 
 ```
 git add --all
@@ -609,18 +629,102 @@ git commit -m 'Part 7 solution'
 git push project main
 ```
 
-> will fail; java has critical vuln with debian base
+Trigger a build and you should see the scanning happen during the build stage. Browse to the [projects in SonarQube](check http://localhost:9000/projects) and you should see there are no big security issues. But the Trivy scan will fail for the products API - there are critical issues with the binaries in the underlying Debian image.
 
-## Part 8 - DevSecOps, golden images
+</details><br/>
 
-- build image library
-- update app images to use library (no db - will be svc)
+## Part 8 - Using Golden Images
 
-now works and deploys
+What a shame. After all that hard work we have an app we can't deploy because of a security issue in a component which we don't even control - the OpenJDK base image. Now we have two choices; we can investigate the issue and see if it's a problem which can be exploited from the API, and add an exception if we think the risks are low, or we can try running the app with a different base image.
 
-still to do:
+All the other components use an Alpine-based image, and they don't report any critical issues so if we could switch the Java app to Alpine that should fix the problem. We can go one step further and build a golden image library for production apps, so we control the whole stack for each component and we have the basis of an SBOM (Software Bill of Materials).
 
-- optimize dockerfiles, remove build scripts & split restore/build
-- optimize pipeline, split for ci & cd?
-- buildkit much faster but running scans in docker build not compatible; split scans into separate stages?
-- deploy explicit version, helm/kustomize
+Luckily we already have the Dockerfiles to build our image library. You'll need to create a new Jenkins pipeline to build the golden images and update the application Dockerfiles to use those images. Then the security issues should be fixed and the deployment will work again.
+
+🥅 Goals
+
+- Add a new Jenkins job to build the golden image library from the `/infra/library` folder - that will build Docker images you can use as the base for Go, Java and .NET apps
+
+- Update the Dockerfiles for the stock API, products API and web components to use the golden images for the application base - we don't have SDK images so we only need the final runtime images to use the library
+
+- The database image won't be used in production, so we don't need to make any changes there
+
+- Run the widgetario pipeline again and confirm the updates fix the build and deploy the new image versions to the production cluster
+
+📚 Reference
+
+- [Golden Image Libraries](https://devsecops.courselabs.co/labs/golden-images/) - covers building and using your own image library
+
+<details>
+  <summary>💡 Hints</summary>
+
+The Dockerfiles, Compose file and Jenkinsfile are all there for you so it should be straightforward to add the library pipeline. You'll need to run that pipeline first and confirm the images are created before you can build the updated application images.
+
+The library images use a custom naming scheme, so you'll need to make sure you work out the correct image tag to use in your `FROM` statments. We're not pushing the library images, so if you're pulling base images in your build then that may fail.
+
+If you see any issues building the application images, it's likely to be that Docker can't find the libary images. Check they've definitely been built and you have the right image tags.
+
+</details><br/>
+
+<details>
+  <summary>🎯 Solution</summary>
+
+You can create a new pipeline for the library build by copying your existing pipeline, and setting the Jenkinsfile path to `infra\library\Jenkinsfile`. Build that pipeline and it should all work.
+
+The sample solution updates the Dockerfiles and the Jenkinsfile for the app:
+
+- [products-api/Dockerfile](./solution\part-8\docker\products-api\Dockerfile) - uses `widgetario/java:jre-21.12` as the base image for the application stage;  the [web Dockerfile]() uses `widgetario/dotnet:aspnet-21.12`, and the [stock API Dockerfile]() uses `widgetario/base:21.12`
+
+- [Jenkinsfile](./solution/part-8/jenkins/Jenkinsfile) - removes the `--pull` argument from the Docker Compose builds, so the build won't try to pull library images, it will use the local images
+
+Copy in the solution files - this will backup your existing Jenkins, and Docker folders:
+
+```
+mv project/docker project/docker-part8.bak
+mv project/jenkins project/jenkins-part8.bak
+
+cp -r solution/part-7/docker project/
+cp -r solution/part-7/jenkins project/
+```
+
+Now add all the changes and push to Gogs:
+
+```
+git add --all
+
+git commit -m 'Part 8 solution'
+
+git push project main
+```
+
+Trigger a build and you should see the scans now all complete successfully, the application images are pushed to Docker Hub and the new version of the app is deployed to Kubernetes.
+
+</details><br/>
+
+## And now - over to you :)
+
+Still got some time available? Good for you. You've built out a full DevSecOps pipeline here, but I'm sure you've noticed there are two problems with it. First:
+
+> It takes far too long to run
+
+Hmm. Several minutes may not seem like a big deal, but it could become a bottleneck when we have dozens of developers pushing hundreds of changes every day.
+
+You have a couple of optimization options you could pursue:
+
+- split the pipeline, so you have a CI pipeline which just does the build and a CD pipeline which adds scanning, publishing and deployment
+
+- switch to BuildKit, it's much faster but it needs some careful configuration to make sure SonarQube is accessible and the Trivy stages run
+
+- you could move scanning to separate stages, so they run outside of Docker and directly in the Jenkinsfile
+
+There are advantages and disadvantages to all those which you'll need to think about. Ther's another problem too:
+
+> The deployment doesn't use explicit image versions
+
+This isn't good, it means we can't tell just from the YAML files which version is running in production, because the release tag `:21.12` is a moving target - production could be using an old image which is an alias of `:21.12-5` where the latest image is an alias of `:21.12-172`.
+
+Some options for fixing that:
+
+- move to GitOps for deployment, so the Jenkins pipeline just does the CI part and publishes images, maybe triggering another job which updates the YAML files with the new image version. Then you could use ArgoCD for the deployment to Kubernetes, running from the explicit version tags
+
+- use a templating tool for Kubernetes, which lets you inject variables into the deployment - Helm or Kustomize are the main options.
