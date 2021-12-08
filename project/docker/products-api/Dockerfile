@@ -17,3 +17,8 @@ ENTRYPOINT ["java", "-jar", "/app/products-api-0.1.0.jar"]
 
 ENV JRE_VERSION="11.0.12" \
     APP_VERSION="0.4.0"
+
+ARG BUILD_VERSION=local
+ARG GIT_COMMIT=local
+LABEL build_version=${BUILD_VERSION}
+LABEL commit_sha=${GIT_COMMIT}

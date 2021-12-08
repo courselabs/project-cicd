@@ -4,18 +4,30 @@ services:
     build:
       context: ../
       dockerfile: docker/db/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
 
   products-api:
     build:
       context: ../
       dockerfile: docker/products-api/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
 
   stock-api:
     build:
       context: ../
       dockerfile: docker/stock-api/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
 
   web:
     build:
       context: ../
       dockerfile: docker/web/Dockerfile
+      args:
+        BUILD_VERSION: ${RELEASE:-21.12}.${BUILD_NUMBER:-0}
+        GIT_COMMIT: ${GIT_COMMIT:-local}
