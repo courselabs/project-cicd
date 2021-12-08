@@ -26,13 +26,13 @@ Here's the application architecture:
 
 There are four components to the app, each will need its own Docker image. The source code is in the `project/src` folder, and each component has a Dockerfile which needs to be completed in the `project/docker` folder:
 
-- Products database - a Postgres database, built with some sample data ([db/Dockerfile](./project/docker/db/Dockerfile))
+- Products database - a Postgres database, built with some sample data ([db/Dockerfile](./docker/db/Dockerfile))
 
-- Products API - a Java REST API which reads from the Products database ([products-api/Dockerfile](./project/docker/products-api/Dockerfile))
+- Products API - a Java REST API which reads from the Products database ([products-api/Dockerfile](./docker/products-api/Dockerfile))
 
-- Stock API - a Go REST API which also reads from the Products database ([stock-api/Dockerfile](./project/docker/stock-api/Dockerfile))
+- Stock API - a Go REST API which also reads from the Products database ([stock-api/Dockerfile](./docker/stock-api/Dockerfile))
 
-- Website - an ASP.NET Core website which uses the Products and Stock APIs ([web/Dockerfile](./project/docker/web/Dockerfile))
+- Website - an ASP.NET Core website which uses the Products and Stock APIs ([web/Dockerfile](./docker/web/Dockerfile))
 
 You should be able to get all the components to build without any errors
 
@@ -68,13 +68,13 @@ Make sure you only use official images for your apps :)
 
 If you didn't get part 1 finished, you can check out the sample solution from `solution/part-1`:
 
-- Products database [Dockerfile](./solution/part-1/docker/db/Dockerfile)
+- Products database [Dockerfile](../solution/part-1/docker/db/Dockerfile)
 
-- Products API [Dockerfile](./solution/part-1/docker/products-api/Dockerfile)
+- Products API [Dockerfile](../solution/part-1/docker/products-api/Dockerfile)
 
-- Stock API [Dockerfile](./solution/part-1/docker/stock-api/Dockerfile)
+- Stock API [Dockerfile](../solution/part-1/docker/stock-api/Dockerfile)
 
-- Website [Dockerfile](./solution/part-1/docker/web/Dockerfile)
+- Website [Dockerfile](../solution/part-1/docker/web/Dockerfile)
 
 Copy from the sample solution to the project directory - this makes a backup of your folder first:
 
@@ -178,9 +178,9 @@ When you start all the containers, it can take 30 seconds or so for all the comp
 
 If you didn't get part 2 finished, you can check out the sample solution from `solution/part-2`:
 
-- [docker-compose.yml](./solution/part-2/compose/docker-compose.yml) - models the application with variables in the image names
+- [docker-compose.yml](../solution/part-2/compose/docker-compose.yml) - models the application with variables in the image names
 
-- [build.yml](./solution/part-2/compose/build.yml) - adds the build details in an override file 
+- [build.yml](../solution/part-2/compose/build.yml) - adds the build details in an override file 
 
 Copy from the sample solution to the project directory - this will use your existing Dockerfiles in the `project/docker` directory and make a backup of your Compose directory:
 
@@ -266,11 +266,11 @@ The web and API containers will all respond to the `wget` call - but one of the 
 
 If you didn't get part 3 finished, you can check out the sample solution from `solution/part-3`:
 
-- [Jenkinsfile](./solution/part-3/jenkins/Jenkinsfile) - has build, deployment and test sections (called "smoke tests" because they're just a basic test); you'll see there are try/catch blocks to deal with errors and a `post` section to tidy up
+- [Jenkinsfile](../solution/part-3/jenkins/Jenkinsfile) - has build, deployment and test sections (called "smoke tests" because they're just a basic test); you'll see there are try/catch blocks to deal with errors and a `post` section to tidy up
 
-- [docker-compose.yml](./solution/part-3/compose/docker-compose.yml) - removes the ports so this becomes a generic definition we can use locally and in the pipeline
+- [docker-compose.yml](../solution/part-3/compose/docker-compose.yml) - removes the ports so this becomes a generic definition we can use locally and in the pipeline
 
-- [test.yml](./solution/part-3/compose/test.yml) - publishes random ports for use in the test stage - you'll see the Jenkinsfile uses the `docker port` command to find out the specific ports for each run
+- [test.yml](../solution/part-3/compose/test.yml) - publishes random ports for use in the test stage - you'll see the Jenkinsfile uses the `docker port` command to find out the specific ports for each run
 
 To use the sample solution, start by running the build containers:
 
@@ -351,13 +351,13 @@ You'll use a new build stage in the pipeline for the push, so it only happens if
 
 If you didn't get part 4 finished, you can check out the sample solution from `solution/part-4`:
 
-- [Jenkinsfile](./solution/part-4/jenkins/Jenkinsfile) - adds a push stage which logs in to Docker Hub using the stored credentials and pushes the images which have been built with a versioned tag; a second publish stages builds images with the release tag and pushes them
+- [Jenkinsfile](../solution/part-4/jenkins/Jenkinsfile) - adds a push stage which logs in to Docker Hub using the stored credentials and pushes the images which have been built with a versioned tag; a second publish stages builds images with the release tag and pushes them
 
-- [build.yml](./solution/part-4/compose/build.yml) - adds build version and Git commit arguments to the build, set to load from environment variables or use default values
+- [build.yml](../solution/part-4/compose/build.yml) - adds build version and Git commit arguments to the build, set to load from environment variables or use default values
 
-- [release.yml](./solution/part-4/compose/release.yml) - overrides the image names to remove the build number - used in Jenkins to push the release tag
+- [release.yml](../solution/part-4/compose/release.yml) - overrides the image names to remove the build number - used in Jenkins to push the release tag
 
-- [stock-api/Dockerfile](./solution/part-4/docker/stock-api/Dockerfile) - adds build arguments for the build version and git commit - identical code is in the Dockerfiles for all other components
+- [stock-api/Dockerfile](../solution/part-4/docker/stock-api/Dockerfile) - adds build arguments for the build version and git commit - identical code is in the Dockerfiles for all other components
 
 You'll need to store your Docker Hub authentication in Jenkins - create a _Username with password_ credential called `docker-hub`.
 
@@ -429,13 +429,13 @@ Start by running a single replica for each component and test them using the sam
 
 If you didn't get part 5 finished, you can check out the sample solution from `solution/part-5`:
 
-- [products-db.yaml](./solution/part-5/kubernetes/widgetario/products-db.yaml) - models the database with a Deployment and ClusterIP Service providing access on port `5432` on the DNS name `products-db`
+- [products-db.yaml](../solution/part-5/kubernetes/widgetario/products-db.yaml) - models the database with a Deployment and ClusterIP Service providing access on port `5432` on the DNS name `products-db`
 
-- [products-api.yaml](./solution/part-5/kubernetes/widgetario/products-api.yaml) - models the products API with a Deployment and ClusterIP Service providing access on port `80` on the DNS name `products-api`
+- [products-api.yaml](../solution/part-5/kubernetes/widgetario/products-api.yaml) - models the products API with a Deployment and ClusterIP Service providing access on port `80` on the DNS name `products-api`
 
-- [stock-api.yaml](./solution/part-5/kubernetes/widgetario/stock-api.yaml) - models the stock API with a Deployment and ClusterIP Service providing access on port `8080` on the DNS name `stock-api`
+- [stock-api.yaml](../solution/part-5/kubernetes/widgetario/stock-api.yaml) - models the stock API with a Deployment and ClusterIP Service providing access on port `8080` on the DNS name `stock-api`
 
-- [web.yaml](./solution/part-5/kubernetes/widgetario/web.yaml) - models the web application with a Deployment and NodePort and LoadBalancer Services
+- [web.yaml](../solution/part-5/kubernetes/widgetario/web.yaml) - models the web application with a Deployment and NodePort and LoadBalancer Services
 
 Copy from the sample solution to the project directory - this will back up any existing Kubernetes YAML you had:
 
@@ -507,9 +507,9 @@ There are different ways to set the dark mode config setting - if you do it in t
 
 If you didn't get part 6 finished, you can check out the sample solution from `solution/part-6`:
 
-- [Jenkinsfile](./solution/part-6/jenkins/Jenkinsfile) - adds a deployment stage, runnig Kubectl commands with a specific kubeconfig file
+- [Jenkinsfile](../solution/part-6/jenkins/Jenkinsfile) - adds a deployment stage, runnig Kubectl commands with a specific kubeconfig file
 
-- [web/Dockerfile](./solution/part-4/docker/stock-api/Dockerfile) - adds the new environment variable to set the default UI mode
+- [web/Dockerfile](../solution/part-4/docker/stock-api/Dockerfile) - adds the new environment variable to set the default UI mode
 
 You'll need to store your Docker Hub authentication in Jenkins - create a _Secret file_ credential called `aks-kubeconfig` and upload the kubeconfig file for your AKS cluster.
 
@@ -605,11 +605,11 @@ Trivy can run as a separate stage in the Docker build, scanning the whole filesy
 
 The sample solution adds the scanning to the Docker build, with build arguments so you can turn scans on or off:
 
-- [products-api/Dockerfile](./solution/part-7/docker/products-api/Dockerfile) - adds SonarQube analysis to the build stage and Trivy scan as a separate stage; the [web Dockerfile](./solution/part-7/docker/web/Dockerfile) does the same, and the [stock API Dockerfile](./solution/part-7/docker/stock-api/Dockerfile) just adds Trivy
+- [products-api/Dockerfile](../solution/part-7/docker/products-api/Dockerfile) - adds SonarQube analysis to the build stage and Trivy scan as a separate stage; the [web Dockerfile](../solution/part-7/docker/web/Dockerfile) does the same, and the [stock API Dockerfile](../solution/part-7/docker/stock-api/Dockerfile) just adds Trivy
 
-- [build.yml](./solution/part-7/compose/build.yml) - adds build arguments to enable SonarQube and Trivy, and runs the builds inside the `cicd-infra` network so they can access SonarQube
+- [build.yml](../solution/part-7/compose/build.yml) - adds build arguments to enable SonarQube and Trivy, and runs the builds inside the `cicd-infra` network so they can access SonarQube
 
-- [Jenkinsfile](./solution/part-7/jenkins/Jenkinsfile) - turns BuildKit off and enables SonarQube and Trivy scanning in the build stage; if either of the scans fail, the build fails before running the test containers
+- [Jenkinsfile](../solution/part-7/jenkins/Jenkinsfile) - turns BuildKit off and enables SonarQube and Trivy scanning in the build stage; if either of the scans fail, the build fails before running the test containers
 
 You'll need to store your SonarQube token in Jenkins - create a _Secret text_ credential called `sonarqube-token` and paste in the token you generated from SonarQube.
 
@@ -681,9 +681,9 @@ You can create a new pipeline for the library build by copying your existing pip
 
 The sample solution updates the Dockerfiles and the Jenkinsfile for the app:
 
-- [products-api/Dockerfile](./solution/part-8/docker/products-api/Dockerfile) - uses `widgetario/java:jre-21.12` as the base image for the application stage;  the [web Dockerfile](./solution/part-8/docker/web/Dockerfile) uses `widgetario/dotnet:aspnet-21.12`, and the [stock API Dockerfile](./solution/part-8/docker/stock-api/Dockerfile) uses `widgetario/base:21.12`
+- [products-api/Dockerfile](../solution/part-8/docker/products-api/Dockerfile) - uses `widgetario/java:jre-21.12` as the base image for the application stage;  the [web Dockerfile](../solution/part-8/docker/web/Dockerfile) uses `widgetario/dotnet:aspnet-21.12`, and the [stock API Dockerfile](../solution/part-8/docker/stock-api/Dockerfile) uses `widgetario/base:21.12`
 
-- [Jenkinsfile](./solution/part-8/jenkins/Jenkinsfile) - removes the `--pull` argument from the Docker Compose builds, so the build won't try to pull library images, it will use the local image cache
+- [Jenkinsfile](../solution/part-8/jenkins/Jenkinsfile) - removes the `--pull` argument from the Docker Compose builds, so the build won't try to pull library images, it will use the local image cache
 
 Copy in the solution files - this will backup your existing Jenkins and Docker folders:
 
