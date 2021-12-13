@@ -11,4 +11,6 @@ mv project/compose-part2.bak project/compose
 mv project/docker-part1.bak project/docker
 mv project/jenkins-part3.bak project/jenkins
 mv project/kubernetes-part5.bak project/kubernetes
+
+rm -r -fo project/*.bak
 ```

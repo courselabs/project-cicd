@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:3.1-alpine AS sdk
+FROM mcr.microsoft.com/dotnet/:6.0-alpine AS sdk
 
 # Sonar Scanner & JRE dep:
 RUN apk add --no-cache openjdk11-jre
@@ -20,11 +20,11 @@ RUN chmod +x build.sh  && ./build.sh
 RUN if [ "$SONAR_TOKEN" != "" ] ; then cd src && dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN ; fi
 
 # app image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS app
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS app
 
 ENV Widgetario__ProductsApi__Url="http://products-api/products" \
     Widgetario__StockApi__Url="http://stock-api:8080/stock" \
-    DOTNET_VERSION="3.1" \
+    DOTNET_VERSION="6.0" \
     APP_VERSION="1.0.0" \
     Widgetario__Theme="dark"
 

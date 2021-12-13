@@ -1,1 +1,1 @@
-FROM mcr.microsoft.com/dotnet/aspnet:3.1.21-alpine3.14
+FROM mcr.microsoft.com/aspnet:6.0.0-alpine3.14

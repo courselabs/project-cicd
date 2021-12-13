@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:3.1.415-alpine3.14
+FROM mcr.microsoft.com/dotnet/sdk:6.0.100-alpine3.14
 
 # Sonar Scanner & JRE dep:
 RUN apk add --no-cache openjdk11-jre

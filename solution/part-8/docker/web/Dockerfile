@@ -19,7 +19,7 @@ FROM widgetario/dotnet:aspnet-21.12 AS app
 
 ENV Widgetario__ProductsApi__Url="http://products-api/products" \
     Widgetario__StockApi__Url="http://stock-api:8080/stock" \
-    DOTNET_VERSION="3.1" \
+    DOTNET_VERSION="6.0" \
     APP_VERSION="1.0.0" \
     Widgetario__Theme="dark"
 
